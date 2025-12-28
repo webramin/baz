@@ -270,6 +270,11 @@
                 ageDirection: 'up'  // 'up': حداقل سن, 'down': حداکثر سن
             };
 
+            // جلوگیری از اجرای همزمان render‌ها و ایجاد آیتم‌های تکراری
+            let renderCounter = 0;
+            // debounce برای ورودی جستجو تا از اجراهای پشت سرهم جلوگیری شود
+            let searchDebounce = null;
+
             const placeholderImage = 'https://via.placeholder.com/400x600?text=تصویر+موجود+نیست';
 
             // تابع کمکی: بررسی وجود تصویر محلی
@@ -399,17 +404,27 @@
 
             // رندر گالری اصلی
             async function renderMainGrid(data) {
+                // توکن رندر برای جلوگیری از append آیتم‌های مربوط به رندرهای قدیمی
+                const myRenderToken = ++renderCounter;
                 const $grid = $('#actorsGrid').empty();
 
                 if (data.length === 0) {
+                    // اگر توکن تغییر کرده، دیگر ادامه نده
+                    if (myRenderToken !== renderCounter) return;
                     $('#noResults').removeClass('hidden');
                     return;
                 }
 
+                // اگر توکن تغییر کرده، دیگر ادامه نده
+                if (myRenderToken !== renderCounter) return;
                 $('#noResults').addClass('hidden');
 
                 for (const person of data) {
                     const imgSrc = await getPersonImage(person);
+
+                    // اگر رندر جدیدی شروع شده، از ادامه جلوگیری کن
+                    if (myRenderToken !== renderCounter) return;
+
                     const age = calculateAge(person);
                     const cardHtml = `
                 <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
@@ -432,6 +447,9 @@
             `;
                     $grid.append(cardHtml);
                 }
+
+                // اگر توکن تغییر کرده، دیگر ادامه نده
+                if (myRenderToken !== renderCounter) return;
 
                 lucide.createIcons();
 
@@ -518,8 +536,12 @@
             function setupEventListeners() {
                 // جستجو
                 $('#searchInput').on('input', function () {
-                    currentFilters.search = $(this).val();
-                    applyFilters();
+                    clearTimeout(searchDebounce);
+                    const $this = $(this);
+                    searchDebounce = setTimeout(() => {
+                        currentFilters.search = $this.val();
+                        applyFilters();
+                    }, 220);
                 });
 
                 // جنسیت
@@ -573,18 +595,27 @@
                 }
 
                 async function renderFavoritesGrid() {
+                    // توکن رندر برای فیلتر علاقه‌مندی‌ها
+                    if (typeof window.favRenderCounter === 'undefined') window.favRenderCounter = 0;
+                    const myFavToken = ++window.favRenderCounter;
+
                     const $grid = $('#favoritesGrid').empty();
                     const favoritePersons = jsonData.filter(p => favorites.includes(p.id));
 
                     if (favoritePersons.length === 0) {
+                        if (myFavToken !== window.favRenderCounter) return;
                         $('#noFavs').removeClass('hidden');
                         return;
                     }
 
+                    if (myFavToken !== window.favRenderCounter) return;
                     $('#noFavs').addClass('hidden');
 
                     for (const person of favoritePersons) {
                         const imgSrc = await getPersonImage(person);
+
+                        if (myFavToken !== window.favRenderCounter) return;
+
                         const age = calculateAge(person);
                         const cardHtml = `
                     <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
@@ -608,6 +639,7 @@
                         $grid.append(cardHtml);
                     }
 
+                    if (myFavToken !== window.favRenderCounter) return;
                     lucide.createIcons();
 
                     // رویداد کلیک روی کارت
