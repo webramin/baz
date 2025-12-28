@@ -9,6 +9,7 @@
     <!-- Tailwind (مثل Update.html) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet"
         type="text/css" />
 
@@ -148,14 +149,26 @@
                 <p class="mt-4">هیچ نتیجه‌ای یافت نشد.</p>
             </div>
         </main>
+
+        <div id="favoritesView" class="hidden flex-1 overflow-y-auto p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-red-500">علاقه‌مندی‌های شما</h2>
+                <button id="favBackBtn" class="px-3 py-1 rounded bg-slate-800">بازگشت</button>
+            </div>
+            <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+            <div id="noFavs" class="hidden mt-12 text-center text-slate-500">
+                <i data-lucide="heart" class="w-16 h-16 opacity-20 mx-auto"></i>
+                <p class="mt-4">شما هیچ علاقه‌مندی‌ای ندارید.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Modal -->
     <div id="actorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/70" onclick="closeModal()"></div>
+        <div id="modalOverlay" class="absolute inset-0 bg-black/70"></div>
         <div
             class="relative w-full max-w-4xl max-h-[90vh] glass rounded-3xl overflow-hidden modal-fade flex flex-col md:flex-row">
-            <button class="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/40" onclick="closeModal()">
+            <button id="modalCloseBtn" class="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/40">
                 <i data-lucide="x" class="w-5 h-5 text-white"></i>
             </button>
 
@@ -219,8 +232,8 @@
             sortBy: 'name'
         };
 
-        // Helpers
-        function setFavCount() { document.getElementById('favCount').innerText = favorites.length; }
+        // Helpers (jQuery-based)
+        function setFavCount() { $('#favCount').text(favorites.length); }
 
         function saveFavs() { localStorage.setItem('favs', JSON.stringify(favorites)); setFavCount(); }
 
@@ -234,14 +247,20 @@
             });
         }
 
-        // اصلاح تابع fetchPersonImage برای بررسی بهتر تصاویر محلی
+        // اصلاح تابع fetchPersonImage برای بررسی بهتر تصاویر محلی و کش محلی
         async function fetchPersonImage(person) {
             if (cache.images[person.id]) return cache.images[person.id];
+
+            const lsKey = `image_${person.id}`;
+            const lsWikiKey = `wikiImage_${person.id}`;
+            const lsCached = localStorage.getItem(lsKey);
+            if (lsCached) { cache.images[person.id] = lsCached; return lsCached; }
 
             // اگر آبجکت image دارد
             if (person.image) {
                 // اگر URL کامل است
                 if (/^https?:\/\//.test(person.image)) {
+                    localStorage.setItem(lsKey, person.image);
                     cache.images[person.id] = person.image;
                     return person.image;
                 }
@@ -251,6 +270,7 @@
                 try {
                     const response = await fetch(localPath, { method: 'HEAD' });
                     if (response.ok) {
+                        localStorage.setItem(lsKey, localPath);
                         cache.images[person.id] = localPath;
                         return localPath;
                     }
@@ -259,7 +279,10 @@
                 }
             }
 
-            // تلاش از ویکی‌پدیا
+            // تلاش از ویکی‌پدیا (کش در localStorage)
+            const storedWiki = localStorage.getItem(lsWikiKey);
+            if (storedWiki) { localStorage.setItem(lsKey, storedWiki); cache.images[person.id] = storedWiki; return storedWiki; }
+
             try {
                 const title = person.name.replace(/\s+/g, '_');
                 const api = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=400&origin=*`;
@@ -267,6 +290,8 @@
                 const pages = res.query?.pages;
                 const page = pages && Object.values(pages)[0];
                 if (page?.thumbnail?.source) {
+                    localStorage.setItem(lsWikiKey, page.thumbnail.source);
+                    localStorage.setItem(lsKey, page.thumbnail.source);
                     cache.images[person.id] = page.thumbnail.source;
                     return page.thumbnail.source;
                 }
@@ -275,11 +300,15 @@
             }
 
             // تصویر پیش‌فرض
+            localStorage.setItem(lsKey, placeholder);
             cache.images[person.id] = placeholder;
             return placeholder;
         }
 
         async function fetchPersonDescription(person) {
+            const lsKey = `description_${person.id}`;
+            const ls = localStorage.getItem(lsKey);
+            if (ls) { cache.wikiExtracts[person.id] = ls; return ls; }
             if (cache.wikiExtracts[person.id]) return cache.wikiExtracts[person.id];
 
             try {
@@ -289,32 +318,42 @@
                 const pages = res.query?.pages;
                 const page = pages && Object.values(pages)[0];
                 if (page?.extract) {
+                    localStorage.setItem(lsKey, page.extract);
                     cache.wikiExtracts[person.id] = page.extract;
                     return page.extract;
                 }
             } catch (e) { console.warn('wiki extract fail', e); }
 
-            return person.bio || 'اطلاعاتی در دسترس نیست.';
+            const fallback = person.bio || 'اطلاعاتی در دسترس نیست.';
+            localStorage.setItem(lsKey, fallback);
+            return fallback;
         }
 
         async function getAlbum(person) {
+            const lsKey = `album_${person.id}`;
+            const ls = localStorage.getItem(lsKey);
+            if (ls) {
+                try { const arr = JSON.parse(ls); cache.album[person.id] = arr; return arr; } catch (e) { }
+            }
             if (cache.album[person.id]) return cache.album[person.id];
             const images = [];
 
             // اگر آبجکت دارای گالری است از آن استفاده کن
             if (person.gallery && person.gallery.length) {
                 cache.album[person.id] = person.gallery;
+                localStorage.setItem(lsKey, JSON.stringify(person.gallery));
                 return person.gallery;
             }
 
-            // بررسی تصاویر محلی با الگوی "نام 1.jpg", "نام 2.jpg", ...
+            // بررسی تصاویر محلی با الگوی "نام 1.jpg", "نام 2.jpg", ... (تا 100 تصویر)
             const base = person.name.trim();
-            for (let i = 1; i <= 50; i++) {
+            for (let i = 1; i <= 100; i++) {
                 const name = `${base} ${i}.jpg`;
                 const found = await getImageLocal(name);
                 if (found) images.push(found);
             }
             cache.album[person.id] = images;
+            localStorage.setItem(lsKey, JSON.stringify(images));
             return images;
         }
 
@@ -343,21 +382,21 @@
                 }));
                 renderActors();
             } catch (e) {
-                document.getElementById('actorsGrid').innerHTML =
-                    `<div class="col-span-full text-center text-red-400 py-12">
+                $('#actorsGrid').html(`
+                    <div class="col-span-full text-center text-red-400 py-12">
                         خطا در بارگذاری داده‌ها: ${e.message}
-                    </div>`;
+                    </div>`);
                 console.error(e);
             }
         }
 
-        // فیلتر و رندر
+        // فیلتر و رندر (jQuery)
         async function renderActors() {
-            const grid = document.getElementById('actorsGrid');
-            const noResults = document.getElementById('noResults');
+            const $grid = $('#actorsGrid');
+            const $noResults = $('#noResults');
 
             let list = data.filter(p => {
-                const nameMatch = p.name.includes(filters.search || '');
+                const nameMatch = p.name.toLowerCase().includes((filters.search || '').toLowerCase());
                 const genderMatch = filters.gender === 'all' || p.gender === filters.gender;
                 const age = calcAge(p);
                 const numericAge = typeof age === 'number' ? age : null;
@@ -371,46 +410,48 @@
             else if (filters.sortBy === 'ageDesc') list.sort((a, b) => (calcAge(b) || 0) - (calcAge(a) || 0));
             else if (filters.sortBy === 'ageAsc') list.sort((a, b) => (calcAge(a) || 0) - (calcAge(b) || 0));
 
-            grid.innerHTML = '';
-            if (!list.length) { noResults.classList.remove('hidden'); return; }
-            noResults.classList.add('hidden');
+            $grid.empty();
+            if (!list.length) { $noResults.removeClass('hidden'); return; }
+            $noResults.addClass('hidden');
 
-            // ساخت کارت‌ها (تصاویر به‌صورت async)
             for (const person of list) {
                 const imgSrc = await fetchPersonImage(person);
                 const isFav = favorites.includes(person.id);
-                const card = document.createElement('div');
-                card.className = "actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition";
-                card.innerHTML = `
-                <div class="aspect-[2/3] overflow-hidden">
-                    <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
-                </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-4">
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <h3 class="font-bold text-white">${person.name}</h3>
-                            <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
-                                <i data-lucide="heart" class="w-4 h-4"></i>
-                            </button>
+                const cardHtml = `
+                <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
+                    <div class="aspect-[2/3] overflow-hidden">
+                        <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="font-bold text-white">${person.name}</h3>
+                                <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-                // کلیک روی کارت باز کردن مودال
-                card.addEventListener('click', () => openModal(person.id));
-                // favorite button
-                card.querySelector('.fav-btn').addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    toggleFavorite(person.id);
-                    renderActors(); // بروزرسانی وضعیت
-                });
-
-                grid.appendChild(card);
+                </div>`;
+                $grid.append(cardHtml);
             }
+
+            $grid.off('click', '.actor-card').on('click', '.actor-card', function () {
+                const id = $(this).find('.fav-btn').data('id');
+                openModal(id);
+            });
+
+            $grid.off('click', '.fav-btn').on('click', '.fav-btn', function (ev) {
+                ev.stopPropagation();
+                const id = $(this).data('id');
+                toggleFavorite(id);
+                renderActors();
+            });
+
             lucide.createIcons();
         }
 
@@ -420,120 +461,175 @@
             saveFavs();
         }
 
-        // مودال
+        // مودال (jQuery)
         async function openModal(id) {
             const person = data.find(p => p.id === id);
             if (!person) return;
-            const modal = document.getElementById('actorModal');
-            const imgEl = document.getElementById('modalImg');
-            const nameEl = document.getElementById('modalName');
-            const ageEl = document.getElementById('modalAge');
-            const statusEl = document.getElementById('modalStatus');
-            const bioEl = document.getElementById('modalBio');
-            const galleryEl = document.getElementById('modalGallery');
-            const favBtn = document.getElementById('modalFavBtn');
-            const wikiLink = document.getElementById('wikiLink');
-            const downloadBtn = document.getElementById('downloadBtn');
+            const $modal = $('#actorModal');
+            const $img = $('#modalImg');
+            const $name = $('#modalName');
+            const $age = $('#modalAge');
+            const $status = $('#modalStatus');
+            const $bio = $('#modalBio');
+            const $gallery = $('#modalGallery');
+            const $favBtn = $('#modalFavBtn');
+            const $wikiLink = $('#wikiLink');
+            const $downloadBtn = $('#downloadBtn');
 
-            imgEl.src = await fetchPersonImage(person);
-            nameEl.innerText = person.name;
-            ageEl.innerText = calcAge(person) + ' سال';
-            statusEl.innerText = person.status || '';
-            bioEl.innerText = await fetchPersonDescription(person);
+            $img.attr('src', await fetchPersonImage(person));
+            $name.text(person.name);
+            $age.text(calcAge(person) + ' سال');
+            $status.text(person.status || '');
+            $bio.text(await fetchPersonDescription(person));
 
-            // آلبوم
-            galleryEl.innerHTML = '<div class="text-slate-400">در حال بارگذاری...</div>';
+            $gallery.html('<div class="text-slate-400">در حال بارگذاری...</div>');
             const album = await getAlbum(person);
-            if (!album.length) galleryEl.innerHTML = '<p class="text-xs text-slate-400">آلبومی در دسترس نیست</p>';
-            else galleryEl.innerHTML = album.map(src => `<img src="${src}" class="w-20 h-20 object-cover rounded-lg cursor-pointer">`).join('');
+            if (!album.length) $gallery.html('<p class="text-xs text-slate-400">آلبومی در دسترس نیست</p>');
+            else $gallery.html(album.map(src => `<img src="${src}" class="w-20 h-20 object-cover rounded-lg cursor-pointer">`).join(''));
 
-            // favorite button
             const isFav = favorites.includes(person.id);
-            favBtn.className = isFav ? 'p-3 rounded-2xl bg-red-500 text-white' : 'p-3 rounded-2xl bg-slate-800 hover:bg-slate-700';
-            favBtn.onclick = () => { toggleFavorite(person.id); openModal(person.id); renderActors(); };
+            $favBtn.attr('class', isFav ? 'p-3 rounded-2xl bg-red-500 text-white' : 'p-3 rounded-2xl bg-slate-800 hover:bg-slate-700');
+            $favBtn.off('click').on('click', function () {
+                toggleFavorite(person.id);
+                setFavCount();
+                if (!$('#favoritesView').hasClass('hidden')) renderFavoritesGrid();
+                openModal(person.id);
+                renderActors();
+            });
 
-            // wiki and download
-            wikiLink.href = `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`;
-            downloadBtn.onclick = () => window.open(imgEl.src, '_blank');
+            $wikiLink.attr('href', `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`);
+            $downloadBtn.off('click').on('click', function () { window.open($img.attr('src'), '_blank'); });
 
-            // show modal
-            modal.classList.remove('hidden'); modal.classList.add('flex');
+            $gallery.off('click', 'img').on('click', 'img', function () { window.open($(this).attr('src'), '_blank'); });
+
+            $modal.removeClass('hidden').addClass('flex');
             lucide.createIcons();
         }
 
-        function closeModal() {
-            const modal = document.getElementById('actorModal');
-            modal.classList.add('hidden'); modal.classList.remove('flex');
-        }
+        function closeModal() { $('#actorModal').addClass('hidden').removeClass('flex'); }
 
-        // رویدادها و کنترل‌ها
+        // رویدادها و کنترل‌ها (jQuery)
         function setupControls() {
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                filters.search = e.target.value.trim();
-                renderActors();
-            });
-
-            document.querySelectorAll('.gender-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.gender-btn').forEach(b => { b.classList.remove('bg-blue-600'); b.classList.add('bg-slate-800'); });
-                    btn.classList.remove('bg-slate-800'); btn.classList.add('bg-blue-600');
-                    filters.gender = btn.dataset.gender;
-                    renderActors();
-                });
-            });
-
-            document.getElementById('ageRange').addEventListener('input', (e) => {
-                filters.ageLimit = parseInt(e.target.value);
-                document.getElementById('ageLabel').innerText = `حداکثر: ${filters.ageLimit}`;
-                renderActors();
-            });
-
-            document.getElementById('ageDir').addEventListener('click', (e) => {
-                filters.ageDirection = filters.ageDirection === 'up' ? 'down' : 'up';
-                e.target.innerText = filters.ageDirection === 'up' ? 'جهت: بالا' : 'جهت: پایین';
-                renderActors();
-            });
-
-            document.getElementById('sortOrder').addEventListener('change', (e) => {
-                filters.sortBy = e.target.value;
-                renderActors();
-            });
-
-            document.getElementById('toggleFavorites').addEventListener('click', () => {
-                const btn = document.getElementById('toggleFavorites');
-                const isShowingFavs = btn.dataset.show === '1';
-
-                if (!isShowingFavs) {
-                    // حالت نمایش فقط علاقه‌مندی‌ها
-                    btn.dataset.show = '1';
-                    btn.classList.add('bg-slate-800');
-                    // فقط علاقه‌مندی‌ها را فیلتر کن
-                    const originalData = [...data];
-                    data = data.filter(p => favorites.includes(p.id));
-                    renderActors();
-                    // داده اصلی را ذخیره کن تا بعداً بازیابی شود
-                    window.originalData = originalData;
+            $('#toggleFavorites').on('click', function () {
+                const $main = $('main');
+                const $favView = $('#favoritesView');
+                const $btn = $('#toggleFavorites');
+                const showing = !$favView.hasClass('hidden');
+                if (!showing) {
+                    $main.addClass('hidden');
+                    $favView.removeClass('hidden');
+                    $btn.addClass('bg-slate-800');
+                    renderFavoritesGrid();
                 } else {
-                    // بازگشت به حالت عادی
-                    btn.dataset.show = '0';
-                    btn.classList.remove('bg-slate-800');
-                    // بازیابی داده اصلی
-                    if (window.originalData) {
-                        data = window.originalData;
-                        delete window.originalData;
-                    }
+                    $main.removeClass('hidden');
+                    $favView.addClass('hidden');
+                    $btn.removeClass('bg-slate-800');
                     renderActors();
                 }
             });
 
-            // بستن مودال با Escape
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+            $('#favBackBtn').on('click', function () {
+                $('#favoritesView').addClass('hidden');
+                $('main').removeClass('hidden');
+                $('#toggleFavorites').removeClass('bg-slate-800');
+                renderActors();
+            });
+
+            $(document).on('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+            // Modal close handlers (overlay and close button)
+            $('#modalOverlay').on('click', closeModal);
+            $('#modalCloseBtn').on('click', closeModal);
         }
+
+        // ذخیره و بازیابی فیلترها
+        function saveFilters() { localStorage.setItem('filters', JSON.stringify(filters)); }
+
+        function restoreFilters() {
+            const saved = localStorage.getItem('filters');
+            if (saved) {
+                try { const obj = JSON.parse(saved); Object.assign(filters, obj); } catch (e) { }
+            }
+            $('#searchInput').val(filters.search || '');
+            $('.gender-btn').each(function () {
+                if ($(this).data('gender') === (filters.gender || 'all')) { $(this).removeClass('bg-slate-800').addClass('bg-blue-600'); }
+                else { $(this).removeClass('bg-blue-600').addClass('bg-slate-800'); }
+            });
+            $('#ageRange').val(filters.ageLimit);
+            $('#sortOrder').val(filters.sortBy || 'name');
+            updateAgeLabel();
+        }
+
+        function updateAgeLabel() { $('#ageLabel').text((filters.ageDirection === 'up' ? 'حداقل: ' : 'حداکثر: ') + filters.ageLimit); }
+
+        async function renderFavoritesGrid() {
+            const $grid = $('#favoritesGrid');
+            const $noFavs = $('#noFavs');
+            const favIds = favorites;
+            const favoriteItems = data.filter(p => favIds.includes(p.id));
+
+            $grid.empty();
+            if (!favoriteItems.length) { $noFavs.removeClass('hidden'); return; }
+            $noFavs.addClass('hidden');
+
+            for (const person of favoriteItems) {
+                const imgSrc = await fetchPersonImage(person);
+                const isFav = favorites.includes(person.id);
+                const cardHtml = `
+                <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
+                    <div class="aspect-[2/3] overflow-hidden">
+                        <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="font-bold text-white">${person.name}</h3>
+                                <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                $grid.append(cardHtml);
+            }
+
+            $grid.off('click', '.actor-card').on('click', '.actor-card', function () {
+                const id = $(this).find('.fav-btn').data('id');
+                openModal(id);
+            });
+
+            $grid.off('click', '.fav-btn').on('click', '.fav-btn', function (ev) {
+                ev.stopPropagation();
+                const id = $(this).data('id');
+                toggleFavorite(id);
+                renderFavoritesGrid();
+                setFavCount();
+                renderActors();
+            });
+
+            lucide.createIcons();
+        }
+
+        // به‌روزرسانی رویدادها برای ذخیره فیلترها (jQuery)
+        $('#searchInput').on('input', function () { filters.search = $(this).val().trim(); saveFilters(); renderActors(); });
+        $('.gender-btn').on('click', function () {
+            $('.gender-btn').removeClass('bg-blue-600').addClass('bg-slate-800');
+            $(this).removeClass('bg-slate-800').addClass('bg-blue-600');
+            filters.gender = $(this).data('gender'); saveFilters(); renderActors();
+        });
+        $('#ageRange').on('input', function () { filters.ageLimit = parseInt($(this).val()); saveFilters(); updateAgeLabel(); renderActors(); });
+        $('#ageDir').on('click', function () { filters.ageDirection = filters.ageDirection === 'up' ? 'down' : 'up'; saveFilters(); updateAgeLabel(); renderActors(); });
+        $('#sortOrder').on('change', function () { filters.sortBy = $(this).val(); saveFilters(); renderActors(); });
 
         // مقداردهی اولیه
         (function init() {
             setFavCount();
             setupControls();
+            restoreFilters();
             loadData();
             lucide.createIcons();
         })();
