@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>گالری بازیگران</title>
+
+    <!-- Tailwind (مثل Update.html) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet"
+        type="text/css" />
+
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: #0f172a;
+            color: #e6eef8;
+        }
+
+        .glass {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
+
+        .actor-card img {
+            transition: transform .4s ease, filter .4s ease;
+        }
+
+        .actor-card:hover img {
+            transform: scale(1.03);
+            filter: none;
+        }
+
+        .modal-fade {
+            animation: modalIn .18s ease-out both;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(.995);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .icon-sm {
+            width: 18px;
+            height: 18px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top bar -->
+    <nav class="h-16 flex items-center justify-between px-6 glass z-40">
+        <div class="flex items-center gap-4">
+            <i data-lucide="menu" class="text-slate-300 w-6 h-6 cursor-pointer"></i>
+            <h1 class="text-lg font-bold bg-gradient-to-l from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                گالری بازیگران</h1>
+        </div>
+
+        <div class="flex-1 max-w-xl mx-6 relative">
+            <input id="searchInput" type="text" placeholder="جستجوی نام..."
+                class="w-full rounded-full bg-slate-800 border border-slate-700 py-2 px-10 text-sm focus:outline-none" />
+            <i data-lucide="search" class="absolute right-3 top-2.5 text-slate-400 w-4 h-4"></i>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <button id="toggleFavorites" class="relative p-2 rounded-full hover:bg-slate-800">
+                <i data-lucide="heart" class="w-6 h-6 text-slate-200"></i>
+                <span id="favCount"
+                    class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+            </button>
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">A</div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside
+            class="w-72 p-6 border-l border-slate-700 glass hidden lg:flex flex-col gap-6 overflow-y-auto custom-scroll">
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-4 h-4"></i> فیلترها
+                </h3>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="text-xs text-slate-400 mb-2 block">جنسیت</label>
+                        <div class="flex gap-2">
+                            <button data-gender="all"
+                                class="gender-btn px-3 py-1 rounded-md text-xs bg-blue-600 active">همه</button>
+                            <button data-gender="مرد"
+                                class="gender-btn px-3 py-1 rounded-md text-xs bg-slate-800">مرد</button>
+                            <button data-gender="زن"
+                                class="gender-btn px-3 py-1 rounded-md text-xs bg-slate-800">زن</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-xs text-slate-400 mb-2 flex justify-between items-center">
+                            <span>حداکثر/حداقل سن (قابل تغییر)</span>
+                            <span id="ageLabel" class="text-xs text-slate-300">حداکثر: 90</span>
+                        </label>
+                        <input id="ageRange" type="range" min="15" max="100" value="90" class="w-full" />
+                        <div class="mt-2 flex items-center gap-2">
+                            <button id="ageDir" class="px-2 py-1 rounded bg-slate-800 text-xs">جهت: بالا</button>
+                            <select id="sortOrder" class="bg-slate-800 rounded text-xs p-1">
+                                <option value="name">مرتب‌سازی: نام</option>
+                                <option value="ageDesc">سن: بیشترین</option>
+                                <option value="ageAsc">سن: کمترین</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto p-4 text-center text-xs text-slate-400 bg-slate-800/40 rounded">
+                دیتای برنامه از فایل لوکال baz.json بارگذاری می‌شود.
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <div id="actorsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+
+            <div id="noResults" class="hidden mt-12 text-center text-slate-500">
+                <i data-lucide="search-x" class="w-16 h-16 opacity-20 mx-auto"></i>
+                <p class="mt-4">هیچ نتیجه‌ای یافت نشد.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="actorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70" onclick="closeModal()"></div>
+        <div
+            class="relative w-full max-w-4xl max-h-[90vh] glass rounded-3xl overflow-hidden modal-fade flex flex-col md:flex-row">
+            <button class="absolute top-4 left-4 z-20 p-2 rounded-full bg-black/40" onclick="closeModal()">
+                <i data-lucide="x" class="w-5 h-5 text-white"></i>
+            </button>
+
+            <div class="md:w-2/5 h-64 md:h-auto relative">
+                <img id="modalImg" src="" alt="" class="w-full h-full object-cover">
+            </div>
+
+            <div class="md:w-3/5 p-6 overflow-y-auto flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="modalName" class="text-2xl font-black"></h2>
+                        <div id="modalTags" class="flex gap-2 text-xs text-blue-400"></div>
+                    </div>
+                    <button id="modalFavBtn" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-800/40 p-3 rounded border border-slate-700">
+                        <span class="text-xs text-slate-400">سن</span>
+                        <div id="modalAge" class="font-bold"></div>
+                    </div>
+                    <div class="bg-slate-800/40 p-3 rounded border border-slate-700">
+                        <span class="text-xs text-slate-400">وضعیت</span>
+                        <div id="modalStatus" class="font-bold text-green-400"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold mb-2">بیوگرافی</h4>
+                    <p id="modalBio" class="text-sm text-slate-300 leading-7 max-h-40 overflow-y-auto pr-2"></p>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold mb-2">آلبوم</h4>
+                    <div id="modalGallery" class="flex gap-2 overflow-x-auto pb-2 custom-scroll"></div>
+                </div>
+
+                <div class="mt-auto flex gap-3">
+                    <a id="wikiLink" target="_blank" class="flex-1 bg-blue-600 py-3 rounded-xl text-center">مشاهده در
+                        ویکی‌پدیا</a>
+                    <button id="downloadBtn" class="px-4 bg-slate-800 rounded-xl">دانلود تصویر</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // داده‌ها از baz.json بارگذاری می‌شوند (طبق خواسته)
+        let data = [];
+        const placeholder = 'https://via.placeholder.com/400x600?text=تصویر+موجود+نیست';
+        let favorites = JSON.parse(localStorage.getItem('favs')) || [];
+        const cache = { images: {}, wikiExtracts: {}, album: {} };
+
+        const filters = {
+            search: '',
+            gender: 'all',
+            ageLimit: 90,
+            ageDirection: 'up', // 'up' => سن >= ageLimit, 'down' => سن <= ageLimit
+            sortBy: 'name'
+        };
+
+        // Helpers
+        function setFavCount() { document.getElementById('favCount').innerText = favorites.length; }
+
+        function saveFavs() { localStorage.setItem('favs', JSON.stringify(favorites)); setFavCount(); }
+
+        function getImageLocal(path) {
+            // تست وجود تصویر لوکال با بارگذاری Image
+            return new Promise(resolve => {
+                const img = new Image();
+                img.src = 'img/' + path;
+                img.onload = () => resolve(img.src);
+                img.onerror = () => resolve(null);
+            });
+        }
+
+        // اصلاح تابع fetchPersonImage برای بررسی بهتر تصاویر محلی
+        async function fetchPersonImage(person) {
+            if (cache.images[person.id]) return cache.images[person.id];
+
+            // اگر آبجکت image دارد
+            if (person.image) {
+                // اگر URL کامل است
+                if (/^https?:\/\//.test(person.image)) {
+                    cache.images[person.id] = person.image;
+                    return person.image;
+                }
+
+                // اگر مسیر نسبی است
+                const localPath = `img/${person.image}`;
+                try {
+                    const response = await fetch(localPath, { method: 'HEAD' });
+                    if (response.ok) {
+                        cache.images[person.id] = localPath;
+                        return localPath;
+                    }
+                } catch (e) {
+                    console.warn('تصویر محلی یافت نشد:', localPath);
+                }
+            }
+
+            // تلاش از ویکی‌پدیا
+            try {
+                const title = person.name.replace(/\s+/g, '_');
+                const api = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=400&origin=*`;
+                const res = await fetch(api).then(r => r.json());
+                const pages = res.query?.pages;
+                const page = pages && Object.values(pages)[0];
+                if (page?.thumbnail?.source) {
+                    cache.images[person.id] = page.thumbnail.source;
+                    return page.thumbnail.source;
+                }
+            } catch (e) {
+                console.warn('خطا در دریافت تصویر از ویکی‌پدیا:', e);
+            }
+
+            // تصویر پیش‌فرض
+            cache.images[person.id] = placeholder;
+            return placeholder;
+        }
+
+        async function fetchPersonDescription(person) {
+            if (cache.wikiExtracts[person.id]) return cache.wikiExtracts[person.id];
+
+            try {
+                const title = person.name.replace(/\s+/g, '_');
+                const api = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro&explaintext&format=json&origin=*`;
+                const res = await fetch(api).then(r => r.json());
+                const pages = res.query?.pages;
+                const page = pages && Object.values(pages)[0];
+                if (page?.extract) {
+                    cache.wikiExtracts[person.id] = page.extract;
+                    return page.extract;
+                }
+            } catch (e) { console.warn('wiki extract fail', e); }
+
+            return person.bio || 'اطلاعاتی در دسترس نیست.';
+        }
+
+        async function getAlbum(person) {
+            if (cache.album[person.id]) return cache.album[person.id];
+            const images = [];
+
+            // اگر آبجکت دارای گالری است از آن استفاده کن
+            if (person.gallery && person.gallery.length) {
+                cache.album[person.id] = person.gallery;
+                return person.gallery;
+            }
+
+            // بررسی تصاویر محلی با الگوی "نام 1.jpg", "نام 2.jpg", ...
+            const base = person.name.trim();
+            for (let i = 1; i <= 50; i++) {
+                const name = `${base} ${i}.jpg`;
+                const found = await getImageLocal(name);
+                if (found) images.push(found);
+            }
+            cache.album[person.id] = images;
+            return images;
+        }
+
+        // محاسبه سن با استفاده از birthYear یا فیلد age موجود
+        function calcAge(p) {
+            if (p.age) return p.age;
+            if (p.birthYear) {
+                // تبدیل تقویم شمسی به سال مرجع مشابه index.html (تقریبی)
+                const currentYear = new Date().getFullYear() - 621;
+                const ref = p.daydeath || currentYear;
+                return ref - p.birthYear;
+            }
+            return 'نامشخص';
+        }
+
+        // بارگذاری داده‌ها از baz.json
+        async function loadData() {
+            try {
+                const res = await fetch('baz.json');
+                if (!res.ok) throw new Error('بارگذاری baz.json ناموفق');
+                const json = await res.json();
+                data = json.map(p => ({
+                    ...p,
+                    id: p.id || `${p.name.replace(/\s+/g, '_')}_${Date.now()}`,
+                    birthYear: parseInt(p.birthYear) || null
+                }));
+                renderActors();
+            } catch (e) {
+                document.getElementById('actorsGrid').innerHTML =
+                    `<div class="col-span-full text-center text-red-400 py-12">
+                        خطا در بارگذاری داده‌ها: ${e.message}
+                    </div>`;
+                console.error(e);
+            }
+        }
+
+        // فیلتر و رندر
+        async function renderActors() {
+            const grid = document.getElementById('actorsGrid');
+            const noResults = document.getElementById('noResults');
+
+            let list = data.filter(p => {
+                const nameMatch = p.name.includes(filters.search || '');
+                const genderMatch = filters.gender === 'all' || p.gender === filters.gender;
+                const age = calcAge(p);
+                const numericAge = typeof age === 'number' ? age : null;
+                const ageMatch = numericAge === null ? true :
+                    (filters.ageDirection === 'up' ? numericAge >= filters.ageLimit : numericAge <= filters.ageLimit);
+                return nameMatch && genderMatch && ageMatch;
+            });
+
+            // مرتب‌سازی
+            if (filters.sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+            else if (filters.sortBy === 'ageDesc') list.sort((a, b) => (calcAge(b) || 0) - (calcAge(a) || 0));
+            else if (filters.sortBy === 'ageAsc') list.sort((a, b) => (calcAge(a) || 0) - (calcAge(b) || 0));
+
+            grid.innerHTML = '';
+            if (!list.length) { noResults.classList.remove('hidden'); return; }
+            noResults.classList.add('hidden');
+
+            // ساخت کارت‌ها (تصاویر به‌صورت async)
+            for (const person of list) {
+                const imgSrc = await fetchPersonImage(person);
+                const isFav = favorites.includes(person.id);
+                const card = document.createElement('div');
+                card.className = "actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition";
+                card.innerHTML = `
+                <div class="aspect-[2/3] overflow-hidden">
+                    <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-4">
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <h3 class="font-bold text-white">${person.name}</h3>
+                            <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+                // کلیک روی کارت باز کردن مودال
+                card.addEventListener('click', () => openModal(person.id));
+                // favorite button
+                card.querySelector('.fav-btn').addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    toggleFavorite(person.id);
+                    renderActors(); // بروزرسانی وضعیت
+                });
+
+                grid.appendChild(card);
+            }
+            lucide.createIcons();
+        }
+
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) favorites = favorites.filter(x => x !== id);
+            else favorites.push(id);
+            saveFavs();
+        }
+
+        // مودال
+        async function openModal(id) {
+            const person = data.find(p => p.id === id);
+            if (!person) return;
+            const modal = document.getElementById('actorModal');
+            const imgEl = document.getElementById('modalImg');
+            const nameEl = document.getElementById('modalName');
+            const ageEl = document.getElementById('modalAge');
+            const statusEl = document.getElementById('modalStatus');
+            const bioEl = document.getElementById('modalBio');
+            const galleryEl = document.getElementById('modalGallery');
+            const favBtn = document.getElementById('modalFavBtn');
+            const wikiLink = document.getElementById('wikiLink');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            imgEl.src = await fetchPersonImage(person);
+            nameEl.innerText = person.name;
+            ageEl.innerText = calcAge(person) + ' سال';
+            statusEl.innerText = person.status || '';
+            bioEl.innerText = await fetchPersonDescription(person);
+
+            // آلبوم
+            galleryEl.innerHTML = '<div class="text-slate-400">در حال بارگذاری...</div>';
+            const album = await getAlbum(person);
+            if (!album.length) galleryEl.innerHTML = '<p class="text-xs text-slate-400">آلبومی در دسترس نیست</p>';
+            else galleryEl.innerHTML = album.map(src => `<img src="${src}" class="w-20 h-20 object-cover rounded-lg cursor-pointer">`).join('');
+
+            // favorite button
+            const isFav = favorites.includes(person.id);
+            favBtn.className = isFav ? 'p-3 rounded-2xl bg-red-500 text-white' : 'p-3 rounded-2xl bg-slate-800 hover:bg-slate-700';
+            favBtn.onclick = () => { toggleFavorite(person.id); openModal(person.id); renderActors(); };
+
+            // wiki and download
+            wikiLink.href = `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`;
+            downloadBtn.onclick = () => window.open(imgEl.src, '_blank');
+
+            // show modal
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('actorModal');
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+        }
+
+        // رویدادها و کنترل‌ها
+        function setupControls() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                filters.search = e.target.value.trim();
+                renderActors();
+            });
+
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.gender-btn').forEach(b => { b.classList.remove('bg-blue-600'); b.classList.add('bg-slate-800'); });
+                    btn.classList.remove('bg-slate-800'); btn.classList.add('bg-blue-600');
+                    filters.gender = btn.dataset.gender;
+                    renderActors();
+                });
+            });
+
+            document.getElementById('ageRange').addEventListener('input', (e) => {
+                filters.ageLimit = parseInt(e.target.value);
+                document.getElementById('ageLabel').innerText = `حداکثر: ${filters.ageLimit}`;
+                renderActors();
+            });
+
+            document.getElementById('ageDir').addEventListener('click', (e) => {
+                filters.ageDirection = filters.ageDirection === 'up' ? 'down' : 'up';
+                e.target.innerText = filters.ageDirection === 'up' ? 'جهت: بالا' : 'جهت: پایین';
+                renderActors();
+            });
+
+            document.getElementById('sortOrder').addEventListener('change', (e) => {
+                filters.sortBy = e.target.value;
+                renderActors();
+            });
+
+            document.getElementById('toggleFavorites').addEventListener('click', () => {
+                const btn = document.getElementById('toggleFavorites');
+                const isShowingFavs = btn.dataset.show === '1';
+
+                if (!isShowingFavs) {
+                    // حالت نمایش فقط علاقه‌مندی‌ها
+                    btn.dataset.show = '1';
+                    btn.classList.add('bg-slate-800');
+                    // فقط علاقه‌مندی‌ها را فیلتر کن
+                    const originalData = [...data];
+                    data = data.filter(p => favorites.includes(p.id));
+                    renderActors();
+                    // داده اصلی را ذخیره کن تا بعداً بازیابی شود
+                    window.originalData = originalData;
+                } else {
+                    // بازگشت به حالت عادی
+                    btn.dataset.show = '0';
+                    btn.classList.remove('bg-slate-800');
+                    // بازیابی داده اصلی
+                    if (window.originalData) {
+                        data = window.originalData;
+                        delete window.originalData;
+                    }
+                    renderActors();
+                }
+            });
+
+            // بستن مودال با Escape
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+        }
+
+        // مقداردهی اولیه
+        (function init() {
+            setFavCount();
+            setupControls();
+            loadData();
+            lucide.createIcons();
+        })();
+    </script>
+</body>
+
+</html>
