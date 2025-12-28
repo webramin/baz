@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گالری بازیگران ایرانی | Actors Gallery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 10px;
+        }
+        .glass-effect {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .actor-card:hover .overlay {
+            opacity: 1;
+        }
+        .modal-enter {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <nav class="h-16 border-b border-slate-700 flex items-center justify-between px-6 glass-effect z-50">
+        <div class="flex items-center gap-4">
+            <i data-lucide="menu" class="cursor-pointer hover:text-blue-400"></i>
+            <h1 class="text-xl font-bold bg-gradient-to-l from-blue-400 to-indigo-400 bg-clip-text text-transparent">گالری بازیگران ایرانی</h1>
+        </div>
+        
+        <div class="flex-1 max-w-xl mx-8 relative">
+            <input type="text" id="searchInput" placeholder="جستجوی نام بازیگر..." 
+                class="w-full bg-slate-800 border border-slate-700 rounded-full py-2 px-10 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm">
+            <i data-lucide="search" class="absolute right-3 top-2.5 text-slate-400 w-4 h-4"></i>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button id="toggleFavorites" class="p-2 rounded-full hover:bg-slate-800 text-slate-300 relative">
+                <i data-lucide="heart" class="w-6 h-6"></i>
+                <span id="favCount" class="absolute -top-1 -right-1 bg-red-500 text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+            </button>
+            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">A</div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Filters -->
+        <aside class="w-72 border-l border-slate-700 p-6 flex flex-col gap-8 glass-effect hidden lg:flex overflow-y-auto custom-scrollbar">
+            <div>
+                <h3 class="text-sm font-semibold text-slate-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="filter" class="w-4 h-4"></i> فیلترهای پیشرفته
+                </h3>
+                
+                <div class="space-y-6">
+                    <!-- Gender -->
+                    <div>
+                        <label class="block text-xs mb-2 text-slate-500">جنسیت</label>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="setFilter('gender', 'all')" class="gender-btn active bg-blue-600 text-[11px] px-3 py-1 rounded-md">همه</button>
+                            <button onclick="setFilter('gender', 'مرد')" class="gender-btn bg-slate-800 text-[11px] px-3 py-1 rounded-md hover:bg-slate-700">مرد</button>
+                            <button onclick="setFilter('gender', 'زن')" class="gender-btn bg-slate-800 text-[11px] px-3 py-1 rounded-md hover:bg-slate-700">زن</button>
+                        </div>
+                    </div>
+
+                    <!-- Age Range -->
+                    <div>
+                        <label class="block text-xs mb-2 text-slate-500 flex justify-between">
+                            <span>محدوده سنی</span>
+                            <span id="ageRangeLabel">20 - 90</span>
+                        </label>
+                        <input type="range" id="ageRange" min="20" max="90" value="90" class="w-full h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+
+                    <!-- Sorting -->
+                    <div>
+                        <label class="block text-xs mb-2 text-slate-500">مرتب‌سازی</label>
+                        <select id="sortOrder" class="w-full bg-slate-800 border border-slate-700 text-xs rounded-md p-2 focus:outline-none">
+                            <option value="name">بر اساس نام (الفبا)</option>
+                            <option value="ageDesc">سن (بیشترین)</option>
+                            <option value="ageAsc">سن (کمترین)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto p-4 bg-slate-800/50 rounded-xl border border-blue-500/20">
+                <p class="text-[11px] text-slate-400 leading-relaxed text-center">
+                    این برنامه به صورت آفلاین طراحی شده و از دیتابیس محلی JSON استفاده می‌کند.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-900/50">
+            <div id="actorsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+                <!-- Cards injected here -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="noResults" class="hidden flex flex-col items-center justify-center h-full text-slate-500">
+                <i data-lucide="search-x" class="w-16 h-16 mb-4 opacity-20"></i>
+                <p>هیچ بازیگری با این مشخصات یافت نشد.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Actor Detail Modal -->
+    <div id="actorModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div class="relative w-full max-w-4xl max-h-[90vh] glass-effect rounded-3xl overflow-hidden flex flex-col md:flex-row modal-enter">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-10 p-2 bg-black/50 rounded-full hover:bg-black/80 transition-all">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <!-- Image Side -->
+            <div class="md:w-2/5 h-64 md:h-auto relative group">
+                <img id="modalImg" src="" alt="" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+            </div>
+
+            <!-- Content Side -->
+            <div class="md:w-3/5 p-8 overflow-y-auto custom-scrollbar flex flex-col">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 id="modalName" class="text-3xl font-black text-white mb-1"></h2>
+                        <div class="flex gap-3 text-xs text-blue-400 font-medium" id="modalTags"></div>
+                    </div>
+                    <button id="modalFavBtn" class="p-3 bg-slate-800 rounded-2xl hover:bg-slate-700 transition-all">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                        <span class="text-[10px] text-slate-500 block">سن</span>
+                        <span id="modalAge" class="text-sm font-bold"></span>
+                    </div>
+                    <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
+                        <span class="text-[10px] text-slate-500 block">وضعیت</span>
+                        <span id="modalStatus" class="text-sm font-bold text-green-400">فعال</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold mb-2 flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4 text-blue-500"></i> بیوگرافی
+                    </h4>
+                    <p id="modalBio" class="text-sm text-slate-400 leading-7 text-justify h-32 overflow-y-auto custom-scrollbar pl-2"></p>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-bold mb-3">آلبوم تصاویر</h4>
+                    <div id="modalGallery" class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                        <!-- Thumbnails -->
+                    </div>
+                </div>
+
+                <div class="mt-auto flex gap-3">
+                    <a id="wikiLink" target="_blank" class="flex-1 bg-blue-600 hover:bg-blue-700 py-3 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2 transition-all">
+                        <i data-lucide="external-link" class="w-4 h-4"></i> مشاهده در ویکی‌پدیا
+                    </a>
+                    <button class="px-4 bg-slate-800 hover:bg-slate-700 rounded-xl transition-all">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample JSON Data (In a real app, this would be your actors.json)
+        const actorsData = [
+            {
+                id: "1",
+                name: "شهاب حسینی",
+                gender: "مرد",
+                birthYear: 1352,
+                age: 50,
+                status: "فعال",
+                bio: "سید شهاب‌الدین حسینی تنکابنی بازیگر، فیلم‌ساز و مجری ایرانی است. او در سال ۱۳۸۷ با بازی در فیلم سوپر استار، سیمرغ بلورین بهترین بازیگر نقش اول مرد جشنواره فیلم فجر را دریافت کرد.",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=600&fit=crop",
+                gallery: ["https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200", "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200"],
+                tags: ["سینما", "تلویزیون"],
+                wiki: "https://fa.wikipedia.org/wiki/شهاب_حسینی"
+            },
+            {
+                id: "2",
+                name: "ترانه علیدوستی",
+                gender: "زن",
+                birthYear: 1362,
+                age: 40,
+                status: "فعال",
+                bio: "ترانه علیدوستی بازیگر ایرانی است. او در پروژه‌های سینمایی موفقی همچون «فروشنده» به کارگردانی اصغر فرهادی ایفای نقش کرده است.",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=600&fit=crop",
+                gallery: ["https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200"],
+                tags: ["سینما", "تئاتر"],
+                wiki: "https://fa.wikipedia.org/wiki/ترانه_علیدوستی"
+            },
+            {
+                id: "3",
+                name: "نوید محمدزاده",
+                gender: "مرد",
+                birthYear: 1365,
+                age: 37,
+                status: "فعال",
+                bio: "نوید محمدزاده بازیگر سینما و تئاتر است. او تاکنون دو بار برنده سیمرغ بلورین بهترین بازیگر نقش مکمل مرد شده است.",
+                image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=600&fit=crop",
+                gallery: ["https://images.unsplash.com/photo-1504257406239-8b51f5634710?w=200"],
+                tags: ["سینما"],
+                wiki: "https://fa.wikipedia.org/wiki/نوید_محمدزاده"
+            },
+            {
+                id: "4",
+                name: "لیلا حاتمی",
+                gender: "زن",
+                birthYear: 1351,
+                age: 51,
+                status: "فعال",
+                bio: "لیلا حاتمی فرزند علی حاتمی و زری خوشکام است. او با بازی در فیلم جدایی نادر از سیمین به شهرت جهانی رسید.",
+                image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop",
+                gallery: [],
+                tags: ["سینما"],
+                wiki: "https://fa.wikipedia.org/wiki/لیلا_حاتمی"
+            },
+            {
+                id: "5",
+                name: "پیمان معادی",
+                gender: "مرد",
+                birthYear: 1349,
+                age: 53,
+                status: "فعال",
+                bio: "پیمان معادی بازیگر، فیلم‌نامه‌نویس و کارگردان ایرانی-آمریکایی است. او برای نقش‌آفرینی در فیلم جدایی نادر از سیمین برنده خرس نقره‌ای شد.",
+                image: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=600&fit=crop",
+                gallery: [],
+                tags: ["سینما", "هالیوود"],
+                wiki: "https://fa.wikipedia.org/wiki/پیمان_معادی"
+            },
+            {
+                id: "6",
+                name: "هدیه تهرانی",
+                gender: "زن",
+                birthYear: 1351,
+                age: 51,
+                status: "فعال",
+                bio: "هدیه تهرانی از بازیگران برجسته سینمای ایران در دهه ۷۰ و ۸۰ است که برنده دو سیمرغ بلورین بهترین بازیگر نقش اول زن شده است.",
+                image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=600&fit=crop",
+                gallery: [],
+                tags: ["سینما"],
+                wiki: "https://fa.wikipedia.org/wiki/هدیه_تهرانی"
+            }
+        ];
+
+        let favorites = JSON.parse(localStorage.getItem('actors_favs')) || [];
+        let filters = {
+            search: '',
+            gender: 'all',
+            maxAge: 90,
+            sortBy: 'name'
+        };
+
+        // Initialize App
+        function init() {
+            renderActors();
+            updateFavCount();
+            lucide.createIcons();
+            
+            // Event Listeners
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                filters.search = e.target.value;
+                renderActors();
+            });
+
+            document.getElementById('ageRange').addEventListener('input', (e) => {
+                filters.maxAge = parseInt(e.target.value);
+                document.getElementById('ageRangeLabel').innerText = `20 - ${filters.maxAge}`;
+                renderActors();
+            });
+
+            document.getElementById('sortOrder').addEventListener('change', (e) => {
+                filters.sortBy = e.target.value;
+                renderActors();
+            });
+        }
+
+        function setFilter(key, value) {
+            filters[key] = value;
+            if(key === 'gender') {
+                document.querySelectorAll('.gender-btn').forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'active');
+                    btn.classList.add('bg-slate-800');
+                    if(btn.innerText === (value === 'all' ? 'همه' : value)) {
+                        btn.classList.add('bg-blue-600', 'active');
+                        btn.classList.remove('bg-slate-800');
+                    }
+                });
+            }
+            renderActors();
+        }
+
+        function renderActors() {
+            const grid = document.getElementById('actorsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            let filtered = actorsData.filter(actor => {
+                const matchesSearch = actor.name.includes(filters.search);
+                const matchesGender = filters.gender === 'all' || actor.gender === filters.gender;
+                const matchesAge = actor.age <= filters.maxAge;
+                return matchesSearch && matchesGender && matchesAge;
+            });
+
+            // Sorting
+            if(filters.sortBy === 'name') {
+                filtered.sort((a,b) => a.name.localeCompare(b.name));
+            } else if(filters.sortBy === 'ageDesc') {
+                filtered.sort((a,b) => b.age - a.age);
+            } else if(filters.sortBy === 'ageAsc') {
+                filtered.sort((a,b) => a.age - b.age);
+            }
+
+            grid.innerHTML = '';
+            
+            if(filtered.length === 0) {
+                noResults.classList.remove('hidden');
+                return;
+            }
+            noResults.classList.add('hidden');
+
+            filtered.forEach(actor => {
+                const isFav = favorites.includes(actor.id);
+                const card = `
+                    <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow-xl transition-all hover:-translate-y-2 border border-slate-700 hover:border-blue-500/50" 
+                        onclick="openModal('${actor.id}')">
+                        <div class="aspect-[2/3] overflow-hidden">
+                            <img src="${actor.image}" alt="${actor.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
+                        </div>
+                        <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-bold text-white text-lg">${actor.name}</h3>
+                                    <p class="text-xs text-blue-400 font-medium">${actor.age} ساله | ${actor.gender}</p>
+                                </div>
+                                <div class="bg-blue-600 p-2 rounded-xl scale-0 group-hover:scale-100 transition-transform">
+                                    <i data-lucide="eye" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); toggleFavorite('${actor.id}')" 
+                            class="absolute top-3 left-3 p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/50 hover:bg-black/50'} transition-all">
+                            <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-current' : ''}"></i>
+                        </button>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', card);
+            });
+            lucide.createIcons();
+        }
+
+        // Modal Logic
+        function openModal(id) {
+            const actor = actorsData.find(a => a.id === id);
+            const modal = document.getElementById('actorModal');
+            
+            document.getElementById('modalImg').src = actor.image;
+            document.getElementById('modalName').innerText = actor.name;
+            document.getElementById('modalAge').innerText = actor.age + " سال";
+            document.getElementById('modalBio').innerText = actor.bio;
+            document.getElementById('wikiLink').href = actor.wiki;
+            
+            // Tags
+            const tagsCont = document.getElementById('modalTags');
+            tagsCont.innerHTML = actor.tags.map(t => `<span class="bg-blue-500/10 px-2 py-0.5 rounded">#${t}</span>`).join('');
+
+            // Gallery
+            const galleryCont = document.getElementById('modalGallery');
+            galleryCont.innerHTML = actor.gallery.length ? 
+                actor.gallery.map(img => `<img src="${img}" class="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-75 transition-all">`).join('') 
+                : '<p class="text-xs text-slate-600">تصویری در آلبوم موجود نیست</p>';
+
+            // Fav Button
+            const favBtn = document.getElementById('modalFavBtn');
+            const isFav = favorites.includes(actor.id);
+            favBtn.className = `p-3 rounded-2xl transition-all ${isFav ? 'bg-red-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`;
+            favBtn.onclick = () => { toggleFavorite(actor.id); openModal(actor.id); };
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('actorModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Favorites Logic
+        function toggleFavorite(id) {
+            if(favorites.includes(id)) {
+                favorites = favorites.filter(fid => fid !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('actors_favs', JSON.stringify(favorites));
+            updateFavCount();
+            renderActors();
+        }
+
+        function updateFavCount() {
+            document.getElementById('favCount').innerText = favorites.length;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
