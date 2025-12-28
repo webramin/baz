@@ -275,6 +275,40 @@
             // debounce برای ورودی جستجو تا از اجراهای پشت سرهم جلوگیری شود
             let searchDebounce = null;
 
+            // ====== کش کردن داده‌ها برای بارگذاری سریع‌تر ======
+            const CACHE_KEY = 'baz_json_cache';
+            const CACHE_TS_KEY = 'baz_json_cache_ts';
+            const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 ساعت
+
+            function saveCache(rawData) {
+                try {
+                    localStorage.setItem(CACHE_KEY, JSON.stringify(rawData));
+                    localStorage.setItem(CACHE_TS_KEY, Date.now().toString());
+                } catch (e) {
+                    console.warn('ذخیره کش با خطا مواجه شد', e);
+                }
+            }
+
+            function loadCache() {
+                try {
+                    const ts = parseInt(localStorage.getItem(CACHE_TS_KEY) || '0', 10);
+                    if (Date.now() - ts < CACHE_TTL) {
+                        const raw = localStorage.getItem(CACHE_KEY);
+                        if (raw) return JSON.parse(raw);
+                    }
+                } catch (e) {
+                    console.warn('بارگذاری کش با خطا مواجه شد', e);
+                }
+                return null;
+            }
+
+            // ====== لیست علاقه‌مندی‌ها در سطح بالاتر (دسترسی از همه توابع) ======
+            let favorites = JSON.parse(localStorage.getItem('favoriteActors') || '[]');
+
+            function updateFavCount() {
+                $('#favCount').text(favorites.length);
+            }
+
             const placeholderImage = 'https://via.placeholder.com/400x600?text=تصویر+موجود+نیست';
 
             // تابع کمکی: بررسی وجود تصویر محلی
@@ -365,11 +399,41 @@
             </div>
         `);
 
+                // چک کردن کش قبل از درخواست شبکه
+                const cached = loadCache();
+                if (cached) {
+                    jsonData = cached.map(person => ({
+                        ...person,
+                        id: person.id || person.name.replace(/\s+/g, '_'),
+                        birthYear: parseInt(person.birthYear) || null
+                    }));
+                    applyFilters();
+
+                    // در پس‌زمینه داده جدید را fetch کن تا کش به‌روز شود
+                    $.ajax({
+                        url: "baz.json",
+                        method: "GET",
+                        dataType: "json",
+                        success: function (fresh) {
+                            saveCache(fresh);
+                            jsonData = fresh.map(person => ({
+                                ...person,
+                                id: person.id || person.name.replace(/\s+/g, '_'),
+                                birthYear: parseInt(person.birthYear) || null
+                            }));
+                            applyFilters();
+                        }
+                    });
+
+                    return;
+                }
+
                 $.ajax({
                     url: "baz.json",
                     method: "GET",
                     dataType: "json",
                     success: function (data) {
+                        saveCache(data);
                         jsonData = data.map(person => ({
                             ...person,
                             id: person.id || person.name.replace(/\s+/g, '_'),
@@ -439,7 +503,7 @@
                                 <p class="text-xs text-blue-400">${age} سال | ${person.gender || ''}</p>
                             </div>
                                 <button class="fav-btn p-2 rounded-full bg-black/30 text-white/70 hover:bg-black/50 transition" data-person-id="${person.id}">
-                                    <i data-lucide="heart" class="fav-heart w-5 h-5"></i>
+                                    <i data-lucide="heart" class="fav-heart w-5 h-5 ${favorites.includes(person.id) ? 'favorited' : ''}"></i>
                                 </button>
                         </div>
                     </div>
