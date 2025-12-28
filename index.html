@@ -122,7 +122,7 @@
                             <span>حداکثر/حداقل سن (قابل تغییر)</span>
                             <span id="ageLabel" class="text-xs text-slate-300">حداکثر: 90</span>
                         </label>
-                        <input id="ageRange" type="range" min="15" max="100" value="90" class="w-full" />
+                        <input id="ageRange" type="range" min="10" max="100" value="15" class="w-full" />
                         <div class="mt-2 flex items-center gap-2">
                             <button id="ageDir" class="px-2 py-1 rounded bg-slate-800 text-xs">جهت: بالا</button>
                             <select id="sortOrder" class="bg-slate-800 rounded text-xs p-1">
@@ -218,421 +218,273 @@
     </div>
 
     <script>
-        // داده‌ها از baz.json بارگذاری می‌شوند (طبق خواسته)
-        let data = [];
-        const placeholder = 'https://via.placeholder.com/400x600?text=تصویر+موجود+نیست';
-        let favorites = JSON.parse(localStorage.getItem('favs')) || [];
-        const cache = { images: {}, wikiExtracts: {}, album: {} };
+        $(document).ready(function () {
+            let jsonData = [];
+            let currentFilters = {
+                search: '',
+                gender: 'all',
+                minAge: 30,
+                ageDirection: 'up'  // 'up': حداقل سن, 'down': حداکثر سن
+            };
 
-        const filters = {
-            search: '',
-            gender: 'all',
-            ageLimit: 90,
-            ageDirection: 'up', // 'up' => سن >= ageLimit, 'down' => سن <= ageLimit
-            sortBy: 'name'
-        };
+            const placeholderImage = 'https://via.placeholder.com/400x600?text=تصویر+موجود+نیست';
 
-        // Helpers (jQuery-based)
-        function setFavCount() { $('#favCount').text(favorites.length); }
+            // تابع کمکی: بررسی وجود تصویر محلی
+            function checkImageExists(imageName) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = `img/${imageName}`;
+                    img.onload = () => resolve(img.src);
+                    img.onerror = () => resolve(null);
+                });
+            }
 
-        function saveFavs() { localStorage.setItem('favs', JSON.stringify(favorites)); setFavCount(); }
-
-        function getImageLocal(path) {
-            // تست وجود تصویر لوکال با بارگذاری Image
-            return new Promise(resolve => {
-                const img = new Image();
-                img.src = 'img/' + path;
-                img.onload = () => resolve(img.src);
-                img.onerror = () => resolve(null);
-            });
-        }
-
-        // اصلاح تابع fetchPersonImage برای بررسی بهتر تصاویر محلی و کش محلی
-        async function fetchPersonImage(person) {
-            if (cache.images[person.id]) return cache.images[person.id];
-
-            const lsKey = `image_${person.id}`;
-            const lsWikiKey = `wikiImage_${person.id}`;
-            const lsCached = localStorage.getItem(lsKey);
-            if (lsCached) { cache.images[person.id] = lsCached; return lsCached; }
-
-            // اگر آبجکت image دارد
-            if (person.image) {
-                // اگر URL کامل است
-                if (/^https?:\/\//.test(person.image)) {
-                    localStorage.setItem(lsKey, person.image);
-                    cache.images[person.id] = person.image;
-                    return person.image;
+            // دریافت تصویر اصلی شخص
+            async function getPersonImage(person) {
+                // اولویت 1: تصویر مشخص‌شده در JSON
+                if (person.image) {
+                    const localPath = await checkImageExists(person.image);
+                    if (localPath) return localPath;
                 }
 
-                // اگر مسیر نسبی است
-                const localPath = `img/${person.image}`;
+                // اولویت 2: تلاش برای دریافت از ویکی‌پدیا
+                const title = person.name.replace(/\s+/g, '_');
+                const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&piprop=thumbnail&pithumbsize=600&format=json&origin=*`;
+
                 try {
-                    const response = await fetch(localPath, { method: 'HEAD' });
-                    if (response.ok) {
-                        localStorage.setItem(lsKey, localPath);
-                        cache.images[person.id] = localPath;
-                        return localPath;
+                    const response = await $.getJSON(apiUrl);
+                    const pages = response.query.pages;
+                    const page = Object.values(pages)[0];
+                    if (page?.thumbnail?.source) {
+                        return page.thumbnail.source;
                     }
-                } catch (e) {
-                    console.warn('تصویر محلی یافت نشد:', localPath);
+                } catch (error) {
+                    console.error('خطا در دریافت تصویر از ویکی‌پدیا:', error);
                 }
+
+                return placeholderImage;
             }
 
-            // تلاش از ویکی‌پدیا (کش در localStorage)
-            const storedWiki = localStorage.getItem(lsWikiKey);
-            if (storedWiki) { localStorage.setItem(lsKey, storedWiki); cache.images[person.id] = storedWiki; return storedWiki; }
-
-            try {
+            // دریافت توضیحات از ویکی‌پدیا
+            async function getPersonDescription(person) {
                 const title = person.name.replace(/\s+/g, '_');
-                const api = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&piprop=thumbnail&pithumbsize=400&origin=*`;
-                const res = await fetch(api).then(r => r.json());
-                const pages = res.query?.pages;
-                const page = pages && Object.values(pages)[0];
-                if (page?.thumbnail?.source) {
-                    localStorage.setItem(lsWikiKey, page.thumbnail.source);
-                    localStorage.setItem(lsKey, page.thumbnail.source);
-                    cache.images[person.id] = page.thumbnail.source;
-                    return page.thumbnail.source;
+                const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro&explaintext&format=json&origin=*`;
+
+                try {
+                    const response = await $.getJSON(apiUrl);
+                    const pages = response.query.pages;
+                    const page = Object.values(pages)[0];
+                    if (page?.extract) {
+                        return page.extract;
+                    }
+                } catch (error) {
+                    console.error('خطا در دریافت توضیحات ویکی‌پدیا:', error);
                 }
-            } catch (e) {
-                console.warn('خطا در دریافت تصویر از ویکی‌پدیا:', e);
+
+                return 'اطلاعات بیشتری در دسترس نیست.';
             }
 
-            // تصویر پیش‌فرض
-            localStorage.setItem(lsKey, placeholder);
-            cache.images[person.id] = placeholder;
-            return placeholder;
-        }
+            // دریافت تصاویر آلبوم
+            async function getAlbumImages(person) {
+                const albumImages = [];
+                const baseName = person.name.trim();
 
-        async function fetchPersonDescription(person) {
-            const lsKey = `description_${person.id}`;
-            const ls = localStorage.getItem(lsKey);
-            if (ls) { cache.wikiExtracts[person.id] = ls; return ls; }
-            if (cache.wikiExtracts[person.id]) return cache.wikiExtracts[person.id];
-
-            try {
-                const title = person.name.replace(/\s+/g, '_');
-                const api = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro&explaintext&format=json&origin=*`;
-                const res = await fetch(api).then(r => r.json());
-                const pages = res.query?.pages;
-                const page = pages && Object.values(pages)[0];
-                if (page?.extract) {
-                    localStorage.setItem(lsKey, page.extract);
-                    cache.wikiExtracts[person.id] = page.extract;
-                    return page.extract;
+                for (let i = 1; i <= 50; i++) {  // محدود به 50 برای عملکرد بهتر
+                    const imageName = `${baseName} ${i}.jpg`;
+                    const imagePath = await checkImageExists(imageName);
+                    if (imagePath) {
+                        albumImages.push(imagePath);
+                    }
                 }
-            } catch (e) { console.warn('wiki extract fail', e); }
-
-            const fallback = person.bio || 'اطلاعاتی در دسترس نیست.';
-            localStorage.setItem(lsKey, fallback);
-            return fallback;
-        }
-
-        async function getAlbum(person) {
-            const lsKey = `album_${person.id}`;
-            const ls = localStorage.getItem(lsKey);
-            if (ls) {
-                try { const arr = JSON.parse(ls); cache.album[person.id] = arr; return arr; } catch (e) { }
-            }
-            if (cache.album[person.id]) return cache.album[person.id];
-            const images = [];
-
-            // اگر آبجکت دارای گالری است از آن استفاده کن
-            if (person.gallery && person.gallery.length) {
-                cache.album[person.id] = person.gallery;
-                localStorage.setItem(lsKey, JSON.stringify(person.gallery));
-                return person.gallery;
+                return albumImages;
             }
 
-            // بررسی تصاویر محلی با الگوی "نام 1.jpg", "نام 2.jpg", ... (تا 100 تصویر)
-            const base = person.name.trim();
-            for (let i = 1; i <= 100; i++) {
-                const name = `${base} ${i}.jpg`;
-                const found = await getImageLocal(name);
-                if (found) images.push(found);
-            }
-            cache.album[person.id] = images;
-            localStorage.setItem(lsKey, JSON.stringify(images));
-            return images;
-        }
+            // محاسبه سن
+            function calculateAge(person) {
+                if (person.age !== undefined) return person.age;
+                if (!person.birthYear) return 'نامشخص';
 
-        // محاسبه سن با استفاده از birthYear یا فیلد age موجود
-        function calcAge(p) {
-            if (p.age) return p.age;
-            if (p.birthYear) {
-                // تبدیل تقویم شمسی به سال مرجع مشابه index.html (تقریبی)
                 const currentYear = new Date().getFullYear() - 621;
-                const ref = p.daydeath || currentYear;
-                return ref - p.birthYear;
+                const refYear = person.daydeath || currentYear;
+                return refYear - person.birthYear;
             }
-            return 'نامشخص';
-        }
 
-        // بارگذاری داده‌ها از baz.json
-        async function loadData() {
-            try {
-                const res = await fetch('baz.json');
-                if (!res.ok) throw new Error('بارگذاری baz.json ناموفق');
-                const json = await res.json();
-                data = json.map(p => ({
-                    ...p,
-                    id: p.id || `${p.name.replace(/\s+/g, '_')}_${Date.now()}`,
-                    birthYear: parseInt(p.birthYear) || null
-                }));
-                renderActors();
-            } catch (e) {
+            // بارگذاری داده‌ها
+            function loadJSONData() {
                 $('#actorsGrid').html(`
-                    <div class="col-span-full text-center text-red-400 py-12">
-                        خطا در بارگذاری داده‌ها: ${e.message}
-                    </div>`);
-                console.error(e);
-            }
-        }
+            <div class="col-span-full text-center py-12 text-slate-400">
+                در حال بارگذاری...
+            </div>
+        `);
 
-        // فیلتر و رندر (jQuery)
-        async function renderActors() {
-            const $grid = $('#actorsGrid');
-            const $noResults = $('#noResults');
-
-            let list = data.filter(p => {
-                const nameMatch = p.name.toLowerCase().includes((filters.search || '').toLowerCase());
-                const genderMatch = filters.gender === 'all' || p.gender === filters.gender;
-                const age = calcAge(p);
-                const numericAge = typeof age === 'number' ? age : null;
-                const ageMatch = numericAge === null ? true :
-                    (filters.ageDirection === 'up' ? numericAge >= filters.ageLimit : numericAge <= filters.ageLimit);
-                return nameMatch && genderMatch && ageMatch;
-            });
-
-            // مرتب‌سازی
-            if (filters.sortBy === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
-            else if (filters.sortBy === 'ageDesc') list.sort((a, b) => (calcAge(b) || 0) - (calcAge(a) || 0));
-            else if (filters.sortBy === 'ageAsc') list.sort((a, b) => (calcAge(a) || 0) - (calcAge(b) || 0));
-
-            $grid.empty();
-            if (!list.length) { $noResults.removeClass('hidden'); return; }
-            $noResults.addClass('hidden');
-
-            for (const person of list) {
-                const imgSrc = await fetchPersonImage(person);
-                const isFav = favorites.includes(person.id);
-                const cardHtml = `
-                <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
-                    <div class="aspect-[2/3] overflow-hidden">
-                        <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
+                $.ajax({
+                    url: "baz.json",
+                    method: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        jsonData = data.map(person => ({
+                            ...person,
+                            id: person.id || person.name.replace(/\s+/g, '_'),
+                            birthYear: parseInt(person.birthYear) || null
+                        }));
+                        applyFilters();
+                    },
+                    error: function (xhr, status, error) {
+                        $('#actorsGrid').html(`
+                    <div class="col-span-full text-center py-12 text-red-400">
+                        خطا در بارگذاری داده‌ها: ${error}
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-4">
-                        <div class="flex justify-between items-end">
-                            <div>
-                                <h3 class="font-bold text-white">${person.name}</h3>
-                                <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-                $grid.append(cardHtml);
+                `);
+                    }
+                });
             }
 
-            $grid.off('click', '.actor-card').on('click', '.actor-card', function () {
-                const id = $(this).find('.fav-btn').data('id');
-                openModal(id);
-            });
+            // اعمال فیلترها
+            function applyFilters() {
+                const filtered = jsonData.filter(person => {
+                    const age = calculateAge(person);
+                    const matchesSearch = person.name.toLowerCase().includes(currentFilters.search.toLowerCase());
+                    const matchesGender = currentFilters.gender === 'all' || person.gender === currentFilters.gender;
+                    const matchesAge = age === 'نامشخص' ||
+                        (currentFilters.ageDirection === 'up' ? age >= currentFilters.minAge : age <= currentFilters.minAge);
 
-            $grid.off('click', '.fav-btn').on('click', '.fav-btn', function (ev) {
-                ev.stopPropagation();
-                const id = $(this).data('id');
-                toggleFavorite(id);
-                renderActors();
-            });
+                    return matchesSearch && matchesGender && matchesAge;
+                });
 
-            lucide.createIcons();
-        }
+                renderMainGrid(filtered);
+            }
 
-        function toggleFavorite(id) {
-            if (favorites.includes(id)) favorites = favorites.filter(x => x !== id);
-            else favorites.push(id);
-            saveFavs();
-        }
+            // رندر گالری اصلی
+            async function renderMainGrid(data) {
+                const $grid = $('#actorsGrid').empty();
 
-        // مودال (jQuery)
-        async function openModal(id) {
-            const person = data.find(p => p.id === id);
-            if (!person) return;
-            const $modal = $('#actorModal');
-            const $img = $('#modalImg');
-            const $name = $('#modalName');
-            const $age = $('#modalAge');
-            const $status = $('#modalStatus');
-            const $bio = $('#modalBio');
-            const $gallery = $('#modalGallery');
-            const $favBtn = $('#modalFavBtn');
-            const $wikiLink = $('#wikiLink');
-            const $downloadBtn = $('#downloadBtn');
-
-            $img.attr('src', await fetchPersonImage(person));
-            $name.text(person.name);
-            $age.text(calcAge(person) + ' سال');
-            $status.text(person.status || '');
-            $bio.text(await fetchPersonDescription(person));
-
-            $gallery.html('<div class="text-slate-400">در حال بارگذاری...</div>');
-            const album = await getAlbum(person);
-            if (!album.length) $gallery.html('<p class="text-xs text-slate-400">آلبومی در دسترس نیست</p>');
-            else $gallery.html(album.map(src => `<img src="${src}" class="w-20 h-20 object-cover rounded-lg cursor-pointer">`).join(''));
-
-            const isFav = favorites.includes(person.id);
-            $favBtn.attr('class', isFav ? 'p-3 rounded-2xl bg-red-500 text-white' : 'p-3 rounded-2xl bg-slate-800 hover:bg-slate-700');
-            $favBtn.off('click').on('click', function () {
-                toggleFavorite(person.id);
-                setFavCount();
-                if (!$('#favoritesView').hasClass('hidden')) renderFavoritesGrid();
-                openModal(person.id);
-                renderActors();
-            });
-
-            $wikiLink.attr('href', `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`);
-            $downloadBtn.off('click').on('click', function () { window.open($img.attr('src'), '_blank'); });
-
-            $gallery.off('click', 'img').on('click', 'img', function () { window.open($(this).attr('src'), '_blank'); });
-
-            $modal.removeClass('hidden').addClass('flex');
-            lucide.createIcons();
-        }
-
-        function closeModal() { $('#actorModal').addClass('hidden').removeClass('flex'); }
-
-        // رویدادها و کنترل‌ها (jQuery)
-        function setupControls() {
-            $('#toggleFavorites').on('click', function () {
-                const $main = $('main');
-                const $favView = $('#favoritesView');
-                const $btn = $('#toggleFavorites');
-                const showing = !$favView.hasClass('hidden');
-                if (!showing) {
-                    $main.addClass('hidden');
-                    $favView.removeClass('hidden');
-                    $btn.addClass('bg-slate-800');
-                    renderFavoritesGrid();
-                } else {
-                    $main.removeClass('hidden');
-                    $favView.addClass('hidden');
-                    $btn.removeClass('bg-slate-800');
-                    renderActors();
+                if (data.length === 0) {
+                    $('#noResults').removeClass('hidden');
+                    return;
                 }
-            });
 
-            $('#favBackBtn').on('click', function () {
-                $('#favoritesView').addClass('hidden');
-                $('main').removeClass('hidden');
-                $('#toggleFavorites').removeClass('bg-slate-800');
-                renderActors();
-            });
+                $('#noResults').addClass('hidden');
 
-            $(document).on('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
-            // Modal close handlers (overlay and close button)
-            $('#modalOverlay').on('click', closeModal);
-            $('#modalCloseBtn').on('click', closeModal);
-        }
-
-        // ذخیره و بازیابی فیلترها
-        function saveFilters() { localStorage.setItem('filters', JSON.stringify(filters)); }
-
-        function restoreFilters() {
-            const saved = localStorage.getItem('filters');
-            if (saved) {
-                try { const obj = JSON.parse(saved); Object.assign(filters, obj); } catch (e) { }
-            }
-            $('#searchInput').val(filters.search || '');
-            $('.gender-btn').each(function () {
-                if ($(this).data('gender') === (filters.gender || 'all')) { $(this).removeClass('bg-slate-800').addClass('bg-blue-600'); }
-                else { $(this).removeClass('bg-blue-600').addClass('bg-slate-800'); }
-            });
-            $('#ageRange').val(filters.ageLimit);
-            $('#sortOrder').val(filters.sortBy || 'name');
-            updateAgeLabel();
-        }
-
-        function updateAgeLabel() { $('#ageLabel').text((filters.ageDirection === 'up' ? 'حداقل: ' : 'حداکثر: ') + filters.ageLimit); }
-
-        async function renderFavoritesGrid() {
-            const $grid = $('#favoritesGrid');
-            const $noFavs = $('#noFavs');
-            const favIds = favorites;
-            const favoriteItems = data.filter(p => favIds.includes(p.id));
-
-            $grid.empty();
-            if (!favoriteItems.length) { $noFavs.removeClass('hidden'); return; }
-            $noFavs.addClass('hidden');
-
-            for (const person of favoriteItems) {
-                const imgSrc = await fetchPersonImage(person);
-                const isFav = favorites.includes(person.id);
-                const cardHtml = `
+                for (const person of data) {
+                    const imgSrc = await getPersonImage(person);
+                    const age = calculateAge(person);
+                    const cardHtml = `
                 <div class="actor-card group relative bg-slate-800 rounded-2xl overflow-hidden cursor-pointer shadow transition">
                     <div class="aspect-[2/3] overflow-hidden">
-                        <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0">
+                        <img src="${imgSrc}" alt="${person.name}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition">
                     </div>
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-4">
                         <div class="flex justify-between items-end">
                             <div>
                                 <h3 class="font-bold text-white">${person.name}</h3>
-                                <p class="text-xs text-blue-400">${calcAge(person)} سال | ${person.gender || ''}</p>
+                                <p class="text-xs text-blue-400">${age} سال | ${person.gender || ''}</p>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button data-id="${person.id}" class="fav-btn p-2 rounded-full ${isFav ? 'bg-red-500 text-white' : 'bg-black/20 text-white/60'}">
-                                    <i data-lucide="heart" class="w-4 h-4"></i>
-                                </button>
-                            </div>
+                            <button class="fav-btn p-2 rounded-full bg-black/30 text-white/70 hover:bg-black/50 transition" data-person-id="${person.id}">
+                                <i data-lucide="heart" class="w-5 h-5"></i>
+                            </button>
                         </div>
                     </div>
-                </div>`;
-                $grid.append(cardHtml);
+                </div>
+            `;
+                    $grid.append(cardHtml);
+                }
+
+                lucide.createIcons();
+
+                // رویداد کلیک روی کارت برای باز کردن مودال
+                $grid.find('.actor-card').on('click', function () {
+                    const id = $(this).find('.fav-btn').data('person-id');
+                    const person = jsonData.find(p => p.id === id);
+                    if (person) showDetailsModal(person);
+                });
             }
 
-            $grid.off('click', '.actor-card').on('click', '.actor-card', function () {
-                const id = $(this).find('.fav-btn').data('id');
-                openModal(id);
-            });
+            // نمایش مودال
+            async function showDetailsModal(person) {
+                const age = calculateAge(person);
+                const imageSrc = await getPersonImage(person);
+                const description = await getPersonDescription(person);
+                const albumImages = await getAlbumImages(person);
 
-            $grid.off('click', '.fav-btn').on('click', '.fav-btn', function (ev) {
-                ev.stopPropagation();
-                const id = $(this).data('id');
-                toggleFavorite(id);
-                renderFavoritesGrid();
-                setFavCount();
-                renderActors();
-            });
+                $('#modalImg').attr('src', imageSrc);
+                $('#modalName').text(person.name);
+                $('#modalAge').text(`${age} سال`);
+                $('#modalStatus').text(person.status || '—');
+                $('#modalBio').text(description);
 
+                // آلبوم
+                const $gallery = $('#modalGallery').empty();
+                if (albumImages.length === 0) {
+                    $gallery.html('<p class="text-sm text-slate-400">تصویری در آلبوم یافت نشد.</p>');
+                } else {
+                    albumImages.forEach(src => {
+                        $gallery.append(`
+                    <img src="${src}" class="w-24 h-24 object-cover rounded-lg cursor-pointer" onclick="window.open('${src}', '_blank')">
+                `);
+                    });
+                }
+
+                $('#wikiLink').attr('href', `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`);
+                $('#downloadBtn').off('click').on('click', () => window.open(imageSrc, '_blank'));
+
+                $('#actorModal').removeClass('hidden').addClass('flex');
+            }
+
+            // مدیریت فیلترها
+            function setupEventListeners() {
+                // جستجو
+                $('#searchInput').on('input', function () {
+                    currentFilters.search = $(this).val();
+                    applyFilters();
+                });
+
+                // جنسیت
+                $('.gender-btn').on('click', function () {
+                    $('.gender-btn').removeClass('bg-blue-600').addClass('bg-slate-800');
+                    $(this).addClass('bg-blue-600').removeClass('bg-slate-800');
+                    currentFilters.gender = $(this).data('gender');
+                    applyFilters();
+                });
+
+                // اسلایدر سن
+                $('#ageRange').on('input', function () {
+                    currentFilters.minAge = parseInt($(this).val());
+                    $('#ageLabel').text(
+                        (currentFilters.ageDirection === 'up' ? 'حداقل: ' : 'حداکثر: ') +
+                        currentFilters.minAge
+                    );
+                    applyFilters();
+                });
+
+                // تغییر جهت سن
+                $('#ageDir').on('click', function () {
+                    currentFilters.ageDirection = currentFilters.ageDirection === 'up' ? 'down' : 'up';
+                    $('#ageLabel').text(
+                        (currentFilters.ageDirection === 'up' ? 'حداقل: ' : 'حداکثر: ') +
+                        currentFilters.minAge
+                    );
+                    $('#ageDir').text('جهت: ' + (currentFilters.ageDirection === 'up' ? 'بالا' : 'پایین'));
+                    applyFilters();
+                });
+
+                // نمایش علاقه‌مندی‌ها (در این نسخه ساده فقط پیام نمایش می‌دهد)
+                $('#toggleFavorites').on('click', function () {
+                    alert('قابلیت علاقه‌مندی‌ها در این نسخه فعال نیست.');
+                });
+
+                // بستن مودال
+                $('#modalOverlay, #modalCloseBtn').on('click', function () {
+                    $('#actorModal').addClass('hidden').removeClass('flex');
+                });
+            }
+
+            // شروع برنامه
+            loadJSONData();
+            setupEventListeners();
             lucide.createIcons();
-        }
-
-        // به‌روزرسانی رویدادها برای ذخیره فیلترها (jQuery)
-        $('#searchInput').on('input', function () { filters.search = $(this).val().trim(); saveFilters(); renderActors(); });
-        $('.gender-btn').on('click', function () {
-            $('.gender-btn').removeClass('bg-blue-600').addClass('bg-slate-800');
-            $(this).removeClass('bg-slate-800').addClass('bg-blue-600');
-            filters.gender = $(this).data('gender'); saveFilters(); renderActors();
         });
-        $('#ageRange').on('input', function () { filters.ageLimit = parseInt($(this).val()); saveFilters(); updateAgeLabel(); renderActors(); });
-        $('#ageDir').on('click', function () { filters.ageDirection = filters.ageDirection === 'up' ? 'down' : 'up'; saveFilters(); updateAgeLabel(); renderActors(); });
-        $('#sortOrder').on('change', function () { filters.sortBy = $(this).val(); saveFilters(); renderActors(); });
 
-        // مقداردهی اولیه
-        (function init() {
-            setFavCount();
-            setupControls();
-            restoreFilters();
-            loadData();
-            lucide.createIcons();
-        })();
     </script>
 </body>
 
