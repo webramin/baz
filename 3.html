@@ -1,0 +1,2320 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گالری بازیگران</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.0/dist/font-face.css">
+
+    <style>
+        @font-face {
+            font-family: fa;
+            src: url('../font/misc/Farsi-Digits/fonts/ttf/Vazirmatn-FD-Bold.ttf') format('ttf');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'fa', sans-serif;
+        }
+
+        .favorite-active {
+            color: #dc3545 !important;
+            border-color: #dc3545 !important;
+        }
+
+        .card-img-top {
+            height: 250px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .card-img-top:hover {
+            transform: scale(1.03);
+        }
+
+        .empty-state {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #favoritesSection {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-backdrop {
+            z-index: 1040 !important;
+        }
+
+        .modal {
+            z-index: 1050 !important;
+        }
+
+        .album-img {
+            height: 150px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .album-img:hover {
+            opacity: 0.9;
+        }
+
+        .spinner-border {
+            margin: 20px auto;
+        }
+
+        /* Custom icon styles */
+        .icon-my {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            vertical-align: middle;
+
+        }
+
+        .album-img {
+            cursor: zoom-in;
+        }
+
+        #viewerImage {
+            z-index: 999999;
+            background: #000;
+        }
+        /* سیستم پیام‌ها */
+.message-item {
+    animation: slideInRight 0.3s ease;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.message-item:hover {
+    transform: translateY(-2px);
+}
+
+.message-item.removing {
+    animation: slideOutRight 0.3s ease forwards;
+}
+
+.message-success {
+    border-right: 4px solid #28a745;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+.message-info {
+    border-right: 4px solid #17a2b8;
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+}
+
+.message-warning {
+    border-right: 4px solid #ffc107;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+}
+
+.message-danger {
+    border-right: 4px solid #dc3545;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+}
+
+.message-header {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.message-content {
+    padding: 15px;
+}
+
+.message-icon {
+    font-size: 1.2rem;
+    margin-left: 10px;
+}
+
+.message-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.message-close:hover {
+    opacity: 1;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* لاگ دانلود */
+.log-entry {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.log-success {
+    color: #28a745;
+}
+
+.log-info {
+    color: #17a2b8;
+}
+
+.log-warning {
+    color: #ffc107;
+}
+
+.log-error {
+    color: #dc3545;
+}
+
+/* پیشرفت دانلود */
+.progress-stage {
+    margin-bottom: 15px;
+}
+
+.stage-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+/* اضافه کردن به استایل‌های موجود */
+.offline-badge {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 9999;
+    background: #ffc107;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+    </style>
+</head>
+
+<body>
+    <div class="container px-2 py-5">
+        <div class="d-flex align-items-center gap-2">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="offlineModeSwitch">
+                <label class="form-check-label" for="offlineModeSwitch">حالت آفلاین</label>
+            </div>
+            <button class="btn btn-danger me-2" id="showFavorites">
+                <img src="heart red.png" class="icon-my" alt="heart red"> علاقه‌مندی‌ها
+            </button>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <img src="adjust.png" class="icon-my" alt="adjust"> فیلترها
+            </button>
+        </div>
+        <div class="row g-4" id="gallery"></div>
+
+        <div id="favoritesSection">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 text-danger">
+                    <img src="heart red.png" class="icon-my" alt="heart red"> علاقه‌مندی‌های شما
+                </h2>
+                <button id="backButton" class="btn btn-outline-secondary">
+                    بازگشت به گالری <img src="left-arrow.png" class="icon-my" alt="back">
+                </button>
+            </div>
+            <div class="row g-4" id="favoritesGallery"></div>
+        </div>
+    </div>
+    <!-- Image Viewer Modal -->
+    <div class="modal fade" id="imageViewer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-md-down modal-xl modal-dialog-centered">
+            <div class="modal-content bg-dark">
+                <div class="modal-body p-0 position-relative">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal" aria-label="بستن"></button>
+
+                    <img id="viewerImage" class="w-100 d-block"
+                        style="max-height: calc(100vh - 2rem); object-fit: contain;" alt="">
+                    <!-- Prev / Next -->
+
+                    <button type="button" id="nextImg"
+                        class="btn btn-dark position-absolute top-50 start-0 translate-middle-y opacity-75 px-3 fs-3"
+                        aria-label="قبلی"><img src="left-arrow.png" class="icon-my" alt="back"></button>
+                    <button type="button" id="prevImg"
+                        class="btn btn-dark position-absolute top-50 end-0 translate-middle-y opacity-75 px-3 fs-3"
+                        aria-label="بعدی"><img src="right-arrow.png" class="icon-my" alt="back"></button>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="filterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">تنظیمات فیلتر</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">جستجوی نام</label>
+                        <input type="text" id="searchInput" class="form-control" placeholder="نام شخص را وارد کنید">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label">جنسیت</label>
+                        <div dir="ltr" class="btn-group w-100 gender-filter">
+                            <button class="btn btn-outline-primary active" data-gender="all">همه</button>
+                            <button class="btn btn-outline-primary" data-gender="مرد">مرد</button>
+                            <button class="btn btn-outline-primary" data-gender="زن">زن</button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label" id="ageLabel">حداقل سن: <span id="ageValue">30</span> سال</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="range" class="form-range" id="ageSlider" min="15" max="100" value="30">
+                            <button class="btn btn-outline-primary btn-sm" id="toggleAgeDirection">
+                                <img src="up.png" class="icon-my" alt="up">
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn btn-success w-100" data-bs-dismiss="modal" id="applyFilters">
+                        اعمال فیلترها
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- مودال تأیید حالت آفلاین -->
+   <!-- سیستم پیام‌ها -->
+<div id="messageContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999; max-width: 400px;">
+    <!-- پیام‌ها به صورت داینامیک اضافه می‌شوند -->
+</div>
+
+<!-- مودال مدیریت دانلود -->
+<div class="modal fade" id="downloadManagerModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">مدیریت دانلود</h5>
+                <div>
+                    <button id="pauseDownloadBtn" class="btn btn-warning btn-sm me-2">
+                        <i class="fas fa-pause"></i> توقف
+                    </button>
+                    <button id="resumeDownloadBtn" class="btn btn-success btn-sm me-2" style="display: none;">
+                        <i class="fas fa-play"></i> ادامه
+                    </button>
+                    <button id="cancelDownloadBtn" class="btn btn-danger btn-sm">
+                        <i class="fas fa-times"></i> لغو
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">آمار دانلود</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>پیشرفت:</span>
+                                    <span id="downloadProgressText">0%</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 20px;">
+                                    <div id="mainProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                         role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>دانلود شده:</span>
+                                    <span id="downloadedCount">0 / 0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title">حجم و زمان</h6>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>حجم کل:</span>
+                                    <span id="totalSize">0 MB</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>زمان سپری شده:</span>
+                                    <span id="elapsedTime">00:00</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>سرعت:</span>
+                                    <span id="downloadSpeed">0 KB/s</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>زمان باقی‌مانده:</span>
+                                    <span id="remainingTime">--:--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">لاگ فعالیت</h6>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <div id="downloadLogs"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                <button type="button" class="btn btn-primary" id="exportLogsBtn">
+                    <i class="fas fa-download"></i> ذخیره گزارش
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال تأیید دانلود -->
+<div class="modal fade" id="confirmDownloadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">دانلود برای حالت آفلاین</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <small>با فعال کردن حالت آفلاین، تمام داده‌ها دانلود و ذخیره می‌شوند.</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">نوع دانلود:</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="downloadType" id="fullDownload" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="fullDownload">کامل</label>
+                        
+                        <input type="radio" class="btn-check" name="downloadType" id="essentialDownload" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="essentialDownload">ضروری</label>
+                        
+                        <input type="radio" class="btn-check" name="downloadType" id="customDownload" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="customDownload">سفارشی</label>
+                    </div>
+                </div>
+                
+                <div id="customOptions" class="mb-3" style="display: none;">
+                    <label class="form-label">انتخاب داده‌ها:</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="downloadImages" checked>
+                        <label class="form-check-label" for="downloadImages">تصاویر اصلی</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="downloadAlbums" checked>
+                        <label class="form-check-label" for="downloadAlbums">آلبوم تصاویر</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="downloadDescriptions" checked>
+                        <label class="form-check-label" for="downloadDescriptions">توضیحات</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="downloadOnlyFavorites">
+                        <label class="form-check-label" for="downloadOnlyFavorites">فقط علاقه‌مندی‌ها</label>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small>حجم تخمینی: <span id="estimatedSize2">در حال محاسبه...</span></small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" id="startDownloadBtn">
+                    <i class="fas fa-download me-2"></i>شروع دانلود
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="personName"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">در حال بارگذاری...</span>
+                    </div>
+                    <img id="personImage" class="img-fluid rounded mb-4 d-none" alt="" style="max-height: 60vh">
+                    <hr class="my-2" />
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="h5" id="personAge"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="h5 text-muted" id="personStatus"></p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <p id="personDescription"></p>
+                    </div>
+                    <button class="btn btn-outline-primary mb-3" id="showAlbum"><img class="icon-my"
+                            src="photo gallery.png" alt="photo gallery" /> نمایش آلبوم</button>
+                    <div class="row g-2 mb-4 d-none" id="albumGallery"></div>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button id="downloadBtn" class="btn btn-outline-secondary">
+                            <img src="download.png" class="icon-my" alt="download"> دانلود
+                        </button>
+                        <button id="wikipediaBtn" class="btn btn-outline-secondary">
+                            <img src="wiki.png" class="icon-my" alt="wiki"> ویکی‌پدیا
+                        </button>
+                        <button id="favoriteBtn" class="btn btn-outline-secondary">
+                            <img src="heart white.png" class="icon-my" alt="heart white"> علاقه‌مندی
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        $(document).ready(function () {
+            // متغیرهای اصلی
+            let jsonData = [];
+            let currentFilters = {
+                search: '',
+                gender: 'all',
+                minAge: 30,
+                ageDirection: 'up'
+            };
+            const placeholderImage = './erorimg.png';
+
+            // تنظیمات دانلود
+            const dbName = 'ActorsGalleryDB';
+            const dbVersion = 3;
+            let db = null;
+            let offlineMode = localStorage.getItem('offline_mode') === 'true';
+
+            // متغیرهای مدیریت دانلود
+            let downloadQueue = [];
+            let isDownloading = false;
+            let isPaused = false;
+            let downloadStats = {
+                total: 0,
+                completed: 0,
+                failed: 0,
+                skipped: 0,
+                totalSize: 0,
+                startTime: null,
+                pausedTime: 0,
+                lastPauseTime: null
+            };
+
+            let currentDownloadStage = '';
+            let downloadSessionId = null;
+            let downloadSpeedInterval = null;
+
+            // ==================== سیستم پیام‌ها ====================
+
+            class MessageSystem {
+                constructor() {
+                    this.container = $('#messageContainer');
+                    this.messageCount = 0;
+                    this.maxMessages = 5;
+                    this.autoRemoveTime = 8000; // 8 ثانیه
+                }
+
+                addMessage(message, type = 'info', title = null, autoRemove = true) {
+                    const messageId = 'msg_' + Date.now() + '_' + this.messageCount++;
+
+                    const icons = {
+                        'success': '<i class="fas fa-check-circle text-success"></i>',
+                        'info': '<i class="fas fa-info-circle text-info"></i>',
+                        'warning': '<i class="fas fa-exclamation-triangle text-warning"></i>',
+                        'danger': '<i class="fas fa-times-circle text-danger"></i>'
+                    };
+
+                    const titles = {
+                        'success': 'موفقیت',
+                        'info': 'اطلاعات',
+                        'warning': 'هشدار',
+                        'danger': 'خطا'
+                    };
+
+                    const messageHTML = `
+                <div id="${messageId}" class="message-item message-${type}">
+                    <div class="message-header">
+                        <div class="d-flex align-items-center">
+                            <span class="message-icon">${icons[type]}</span>
+                            <strong>${title || titles[type]}</strong>
+                        </div>
+                        <button class="message-close" onclick="window.messageSystem.removeMessage('${messageId}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="message-content">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+                    // محدود کردن تعداد پیام‌ها
+                    const messages = this.container.children('.message-item');
+                    if (messages.length >= this.maxMessages) {
+                        this.removeMessage($(messages.first()).attr('id'));
+                    }
+
+                    this.container.append(messageHTML);
+
+                    // حذف خودکار
+                    if (autoRemove) {
+                        setTimeout(() => {
+                            this.removeMessage(messageId);
+                        }, this.autoRemoveTime);
+                    }
+
+                    return messageId;
+                }
+
+                removeMessage(messageId) {
+                    const message = $('#' + messageId);
+                    if (message.length) {
+                        message.addClass('removing');
+                        setTimeout(() => message.remove(), 300);
+                    }
+                }
+
+                clearAll() {
+                    this.container.empty();
+                }
+
+                // پیام‌های خاص
+                addDownloadLog(message, type = 'info') {
+                    const logId = this.addMessage(message, type, 'لاگ دانلود', false);
+
+                    // همچنین به مودال لاگ اضافه کن
+                    const logEntry = $(`
+                <div class="log-entry log-${type}">
+                    <small>[${new Date().toLocaleTimeString('fa-IR')}]</small> ${message}
+                </div>
+            `);
+
+                    $('#downloadLogs').prepend(logEntry);
+
+                    // محدود کردن تعداد لاگ‌ها
+                    const logs = $('#downloadLogs .log-entry');
+                    if (logs.length > 100) {
+                        $(logs.last()).remove();
+                    }
+
+                    return logId;
+                }
+
+                addImageFound(personName, source, imageName = null) {
+                    const sourceText = source === 'local' ? 'پوشه img' : 'ویکی‌پدیا';
+                    const imageText = imageName ? ` (${imageName})` : '';
+                    const message = `تصویر ${personName}${imageText} از ${sourceText} پیدا شد`;
+                    return this.addDownloadLog(message, 'success');
+                }
+
+                addImageSkipped(personName, reason) {
+                    const reasons = {
+                        'cached': 'از قبل در حافظه موجود است',
+                        'failed': 'دانلود ناموفق',
+                        'skipped': 'رد شده'
+                    };
+                    return this.addDownloadLog(`تصویر ${personName} ${reasons[reason]}`, 'warning');
+                }
+            }
+
+            // ایجاد نمونه از سیستم پیام‌ها
+            window.messageSystem = new MessageSystem();
+
+            // ==================== مدیریت دانلود ====================
+
+            class DownloadManager {
+                constructor() {
+                    this.queue = [];
+                    this.currentIndex = 0;
+                    this.sessionId = null;
+                    this.resumeData = null;
+                }
+
+                // ایجاد سشن جدید دانلود
+                createSession(config) {
+                    this.sessionId = 'session_' + Date.now();
+                    this.queue = [];
+                    this.currentIndex = 0;
+                    this.resumeData = {
+                        sessionId: this.sessionId,
+                        config: config,
+                        progress: {
+                            total: 0,
+                            completed: 0,
+                            failed: 0,
+                            currentStage: '',
+                            items: {}
+                        },
+                        timestamp: Date.now()
+                    };
+
+                    localStorage.setItem('last_download_session', JSON.stringify(this.resumeData));
+                    return this.sessionId;
+                }
+
+                // ذخیره وضعیت برای ادامه دادن
+                saveProgress() {
+                    if (this.resumeData) {
+                        this.resumeData.progress.currentIndex = this.currentIndex;
+                        this.resumeData.progress.completed = this.getCompletedCount();
+                        localStorage.setItem('last_download_session', JSON.stringify(this.resumeData));
+                    }
+                }
+
+                // بارگذاری وضعیت قبلی
+                loadProgress() {
+                    const saved = localStorage.getItem('last_download_session');
+                    if (saved) {
+                        try {
+                            this.resumeData = JSON.parse(saved);
+                            this.sessionId = this.resumeData.sessionId;
+                            this.queue = this.resumeData.progress.items ?
+                                Object.values(this.resumeData.progress.items) : [];
+                            this.currentIndex = this.resumeData.progress.currentIndex || 0;
+                            return true;
+                        } catch (e) {
+                            console.error('خطا در بارگذاری وضعیت:', e);
+                        }
+                    }
+                    return false;
+                }
+
+                // ادامه دانلود
+                resume() {
+                    if (this.loadProgress()) {
+                        messageSystem.addMessage('دانلود از نقطه توقف ادامه می‌یابد', 'info');
+                        return this.start();
+                    }
+                    return false;
+                }
+
+                // اضافه کردن آیتم به صف
+                addToQueue(items) {
+                    items.forEach(item => {
+                        const existingIndex = this.queue.findIndex(q => q.id === item.id);
+                        if (existingIndex === -1) {
+                            this.queue.push({
+                                ...item,
+                                status: 'pending',
+                                retryCount: 0,
+                                addedAt: Date.now()
+                            });
+                        }
+                    });
+
+                    this.resumeData.progress.total = this.queue.length;
+                    this.saveProgress();
+                }
+
+                // گرفتن آیتم بعدی
+                getNextItem() {
+                    if (this.currentIndex >= this.queue.length) {
+                        return null;
+                    }
+
+                    const item = this.queue[this.currentIndex];
+                    this.currentIndex++;
+                    this.saveProgress();
+                    return item;
+                }
+
+                // آپدیت وضعیت آیتم
+                updateItemStatus(itemId, status, data = {}) {
+                    const itemIndex = this.queue.findIndex(q => q.id === itemId);
+                    if (itemIndex !== -1) {
+                        this.queue[itemIndex] = {
+                            ...this.queue[itemIndex],
+                            status,
+                            ...data,
+                            updatedAt: Date.now()
+                        };
+
+                        // ذخیره در resumeData
+                        if (this.resumeData) {
+                            this.resumeData.progress.items[itemId] = this.queue[itemIndex];
+
+                            if (status === 'completed') {
+                                this.resumeData.progress.completed++;
+                            } else if (status === 'failed') {
+                                this.resumeData.progress.failed++;
+                            }
+
+                            this.saveProgress();
+                        }
+
+                        return true;
+                    }
+                    return false;
+                }
+
+                getCompletedCount() {
+                    return this.queue.filter(item => item.status === 'completed').length;
+                }
+
+                getProgressPercentage() {
+                    if (this.queue.length === 0) return 0;
+                    return Math.round((this.getCompletedCount() / this.queue.length) * 100);
+                }
+
+                clear() {
+                    this.queue = [];
+                    this.currentIndex = 0;
+                    this.resumeData = null;
+                    localStorage.removeItem('last_download_session');
+                }
+            }
+
+            // ایجاد نمونه از مدیریت دانلود
+            const downloadManager = new DownloadManager();
+
+            // ==================== مدیریت IndexedDB ====================
+
+            async function initDatabase() {
+                return new Promise((resolve, reject) => {
+                    if (!window.indexedDB) {
+                        reject('IndexedDB پشتیبانی نمی‌شود');
+                        return;
+                    }
+
+                    const request = indexedDB.open(dbName, dbVersion);
+
+                    request.onerror = (event) => {
+                        reject('خطا در باز کردن پایگاه داده');
+                    };
+
+                    request.onsuccess = (event) => {
+                        db = event.target.result;
+                        resolve(db);
+                    };
+
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+
+                        // جدول وضعیت دانلود
+                        if (!db.objectStoreNames.contains('download_status')) {
+                            const statusStore = db.createObjectStore('download_status', { keyPath: 'id' });
+                            statusStore.createIndex('status', 'status', { unique: false });
+                            statusStore.createIndex('personId', 'personId', { unique: false });
+                        }
+
+                        // جدول لاگ‌ها
+                        if (!db.objectStoreNames.contains('download_logs')) {
+                            const logsStore = db.createObjectStore('download_logs', {
+                                keyPath: 'id',
+                                autoIncrement: true
+                            });
+                            logsStore.createIndex('timestamp', 'timestamp', { unique: false });
+                            logsStore.createIndex('type', 'type', { unique: false });
+                        }
+                    };
+                });
+            }
+
+            // ==================== توابع اصلی دانلود ====================
+
+            // آماده‌سازی دانلود
+            async function prepareDownload(config) {
+                messageSystem.addMessage('آماده‌سازی برای دانلود...', 'info');
+
+                const items = [];
+
+                // فیلتر کردن بر اساس تنظیمات
+                let personsToDownload = jsonData;
+
+                if (config.onlyFavorites) {
+                    const favorites = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+                    personsToDownload = jsonData.filter(person =>
+                        favorites.includes(person.id || person.name.replace(/\s+/g, '_'))
+                    );
+                }
+
+                // ایجاد آیتم‌های دانلود
+                for (const person of personsToDownload) {
+                    const personId = person.id || person.name.replace(/\s+/g, '_');
+
+                    if (config.downloadImages) {
+                        items.push({
+                            id: `image_${personId}`,
+                            type: 'image',
+                            personId: personId,
+                            personName: person.name,
+                            source: 'wikipedia',
+                            priority: 1
+                        });
+                    }
+
+                    if (config.downloadAlbums) {
+                        // بررسی آلبوم تصاویر
+                        for (let i = 1; i <= 10; i++) {
+                            items.push({
+                                id: `album_${personId}_${i}`,
+                                type: 'album_image',
+                                personId: personId,
+                                personName: person.name,
+                                index: i,
+                                priority: 2
+                            });
+                        }
+                    }
+
+                    if (config.downloadDescriptions) {
+                        items.push({
+                            id: `desc_${personId}`,
+                            type: 'description',
+                            personId: personId,
+                            personName: person.name,
+                            priority: 3
+                        });
+                    }
+                }
+
+                // ایجاد سشن دانلود
+                downloadSessionId = downloadManager.createSession(config);
+                downloadManager.addToQueue(items);
+
+                // آپدیت UI
+                $('#downloadedCount').text(`0 / ${items.length}`);
+                $('#totalSize').text('0 MB');
+                downloadStats.total = items.length;
+
+                // نمایش مودال مدیریت دانلود
+                const managerModal = new bootstrap.Modal(document.getElementById('downloadManagerModal'));
+                managerModal.show();
+
+                messageSystem.addMessage(`${items.length} آیتم برای دانلود آماده شد`, 'success');
+
+                return items.length;
+            }
+
+            // شروع دانلود
+            async function startDownload() {
+                if (isDownloading) {
+                    messageSystem.addMessage('دانلود در حال انجام است', 'warning');
+                    return;
+                }
+
+                isDownloading = true;
+                isPaused = false;
+                downloadStats.startTime = Date.now();
+                downloadStats.pausedTime = 0;
+
+                // مخفی کردن دکمه ادامه و نمایش دکمه توقف
+                $('#resumeDownloadBtn').hide();
+                $('#pauseDownloadBtn').show();
+
+                // شروع محاسبه سرعت
+                startSpeedCalculator();
+
+                // شروع پردازش صف
+                await processDownloadQueue();
+            }
+
+            // پردازش صف دانلود
+            async function processDownloadQueue() {
+                while (!isPaused && downloadManager.currentIndex < downloadManager.queue.length) {
+                    const item = downloadManager.getNextItem();
+                    if (!item) break;
+
+                    // آپدیت مرحله فعلی
+                    updateCurrentStage(item.type);
+
+                    try {
+                        switch (item.type) {
+                            case 'image':
+                                await downloadPersonImage(item);
+                                break;
+                            case 'album_image':
+                                await downloadAlbumImage(item);
+                                break;
+                            case 'description':
+                                await downloadPersonDescription(item);
+                                break;
+                        }
+
+                        downloadManager.updateItemStatus(item.id, 'completed', {
+                            completedAt: Date.now()
+                        });
+
+                        downloadStats.completed++;
+                        updateProgressUI();
+
+                    } catch (error) {
+                        console.error(`خطا در دانلود ${item.id}:`, error);
+
+                        downloadManager.updateItemStatus(item.id, 'failed', {
+                            error: error.message,
+                            retryCount: (item.retryCount || 0) + 1
+                        });
+
+                        downloadStats.failed++;
+                        messageSystem.addDownloadLog(`خطا در دانلود ${item.personName}: ${error.message}`, 'error');
+                    }
+
+                    // تاخیر کوچک برای جلوگیری از overload
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                // اگر دانلود کامل شد
+                if (downloadManager.currentIndex >= downloadManager.queue.length) {
+                    completeDownload();
+                } else if (isPaused) {
+                    messageSystem.addMessage('دانلود متوقف شد', 'warning');
+                    $('#pauseDownloadBtn').hide();
+                    $('#resumeDownloadBtn').show();
+                }
+            }
+
+            // دانلود تصویر شخص
+            async function downloadPersonImage(item) {
+                const person = jsonData.find(p =>
+                    (p.id || p.name.replace(/\s+/g, '_')) === item.personId
+                );
+
+                if (!person) {
+                    throw new Error('شخص یافت نشد');
+                }
+
+                // اول تصویر محلی را بررسی کن
+                const localImageName = person.image;
+                if (localImageName) {
+                    const localPath = `img/${localImageName}`;
+
+                    try {
+                        const response = await fetch(localPath);
+                        if (response.ok) {
+                            const blob = await response.blob();
+                            await saveImageToDB(item.personId, blob, 'main', 'local');
+
+                            messageSystem.addImageFound(person.name, 'local', localImageName);
+                            messageSystem.addDownloadLog(`تصویر ${person.name} از پوشه img پیدا شد`, 'success');
+                            return;
+                        }
+                    } catch (error) {
+                        // ادامه بده به ویکی‌پدیا
+                    }
+                }
+
+                // اگر تصویر محلی نبود، از ویکی‌پدیا بگیر
+                try {
+                    const title = person.name.replace(/\s+/g, '_');
+                    const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&piprop=thumbnail&pithumbsize=400&format=json&origin=*`;
+
+                    const response = await $.getJSON(apiUrl);
+                    const pages = response.query.pages;
+                    const page = Object.values(pages)[0];
+
+                    if (page.thumbnail?.source) {
+                        const imgResponse = await fetch(page.thumbnail.source);
+                        const blob = await imgResponse.blob();
+
+                        await saveImageToDB(item.personId, blob, 'main', 'wikipedia');
+
+                        messageSystem.addImageFound(person.name, 'wikipedia');
+                        messageSystem.addDownloadLog(`تصویر ${person.name} از ویکی‌پدیا کپی شد`, 'success');
+
+                        // آپدیت آمار حجم
+                        downloadStats.totalSize += blob.size;
+                        return;
+                    }
+
+                    throw new Error('تصویر در ویکی‌پدیا یافت نشد');
+
+                } catch (error) {
+                    throw new Error(`خطا در دریافت از ویکی‌پدیا: ${error.message}`);
+                }
+            }
+
+            // دانلود تصویر آلبوم
+            async function downloadAlbumImage(item) {
+                const person = jsonData.find(p =>
+                    (p.id || p.name.replace(/\s+/g, '_')) === item.personId
+                );
+
+                if (!person) {
+                    throw new Error('شخص یافت نشد');
+                }
+
+                const imageName = `${person.name.trim()} ${item.index}.jpg`;
+                const localPath = `img/${imageName}`;
+
+                try {
+                    const response = await fetch(localPath);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        await saveImageToDB(item.personId, blob, 'album', 'local', item.index);
+
+                        messageSystem.addImageFound(person.name, 'local', imageName);
+                        messageSystem.addDownloadLog(`تصویر آلبوم ${person.name} (${item.index}) از پوشه img پیدا شد`, 'success');
+
+                        downloadStats.totalSize += blob.size;
+                        return;
+                    } else {
+                        throw new Error('تصویر یافت نشد');
+                    }
+                } catch (error) {
+                    // تصویر در پوشه محلی نیست
+                    downloadStats.skipped++;
+                    downloadManager.updateItemStatus(item.id, 'skipped', {
+                        reason: 'not_found'
+                    });
+
+                    messageSystem.addImageSkipped(person.name, 'skipped');
+                }
+            }
+
+            // دانلود توضیحات
+            async function downloadPersonDescription(item) {
+                const person = jsonData.find(p =>
+                    (p.id || p.name.replace(/\s+/g, '_')) === item.personId
+                );
+
+                if (!person) {
+                    throw new Error('شخص یافت نشد');
+                }
+
+                try {
+                    const title = person.name.replace(/\s+/g, '_');
+                    const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro&explaintext&format=json&origin=*`;
+
+                    const response = await $.getJSON(apiUrl);
+                    const pages = response.query.pages;
+                    const page = Object.values(pages)[0];
+
+                    if (page.extract) {
+                        await saveDescriptionToDB(item.personId, page.extract);
+                        messageSystem.addDownloadLog(`توضیحات ${person.name} دانلود شد`, 'success');
+                    } else {
+                        throw new Error('توضیحات یافت نشد');
+                    }
+
+                } catch (error) {
+                    throw new Error(`خطا در دریافت توضیحات: ${error.message}`);
+                }
+            }
+
+            // ذخیره تصویر در DB
+            async function saveImageToDB(personId, blob, type, source, index = null) {
+                if (!db) return;
+
+                const key = type === 'main' ? `main_${personId}` : `album_${personId}_${index}`;
+
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(['images'], 'readwrite');
+                    const store = transaction.objectStore('images');
+
+                    const item = {
+                        key: key,
+                        personId: personId,
+                        blob: blob,
+                        type: type,
+                        source: source,
+                        size: blob.size,
+                        timestamp: Date.now()
+                    };
+
+                    if (index) item.index = index;
+
+                    const request = store.put(item);
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            // ذخیره توضیحات در DB
+            async function saveDescriptionToDB(personId, text) {
+                if (!db) return;
+
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction(['descriptions'], 'readwrite');
+                    const store = transaction.objectStore('descriptions');
+
+                    const request = store.put({
+                        id: personId,
+                        text: text,
+                        timestamp: Date.now()
+                    });
+
+                    request.onsuccess = () => resolve();
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            }
+
+            // ==================== توابع UI دانلود ====================
+
+            function updateCurrentStage(stage) {
+                currentDownloadStage = stage;
+
+                const stageNames = {
+                    'image': 'تصاویر اصلی',
+                    'album_image': 'آلبوم تصاویر',
+                    'description': 'توضیحات'
+                };
+
+                $('#currentStage').text(stageNames[stage] || stage);
+            }
+
+            function updateProgressUI() {
+                const completed = downloadStats.completed;
+                const total = downloadStats.total;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                $('#mainProgressBar').css('width', `${percentage}%`);
+                $('#downloadProgressText').text(`${percentage}%`);
+                $('#downloadedCount').text(`${completed} / ${total}`);
+
+                // آپدیت عنوان مودال
+                $('.modal-title').text(`مدیریت دانلود (${completed}/${total})`);
+            }
+
+            function startSpeedCalculator() {
+                let lastBytes = 0;
+                let lastTime = Date.now();
+
+                downloadSpeedInterval = setInterval(() => {
+                    const currentTime = Date.now();
+                    const timeDiff = (currentTime - lastTime) / 1000; // به ثانیه
+
+                    if (timeDiff > 0) {
+                        const currentBytes = downloadStats.totalSize;
+                        const bytesDiff = currentBytes - lastBytes;
+                        const speed = bytesDiff / timeDiff; // بایت بر ثانیه
+
+                        $('#downloadSpeed').text(formatBytes(speed) + '/ثانیه');
+
+                        // محاسبه زمان باقی‌مانده
+                        if (speed > 0) {
+                            const remainingBytes = (downloadStats.total - downloadStats.completed) * 200000; // فرضی
+                            const remainingSeconds = remainingBytes / speed;
+                            $('#remainingTime').text(formatTime(remainingSeconds));
+                        }
+
+                        lastBytes = currentBytes;
+                        lastTime = currentTime;
+                    }
+
+                    // آپدیت زمان سپری شده
+                    const elapsed = Date.now() - downloadStats.startTime - downloadStats.pausedTime;
+                    $('#elapsedTime').text(formatTime(elapsed / 1000));
+
+                }, 1000);
+            }
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 بایت';
+
+                const k = 1024;
+                const sizes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return '--:--';
+
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = Math.floor(seconds % 60);
+
+                if (hours > 0) {
+                    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                } else {
+                    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+                }
+            }
+
+            function completeDownload() {
+                isDownloading = false;
+
+                // توقف محاسبه سرعت
+                if (downloadSpeedInterval) {
+                    clearInterval(downloadSpeedInterval);
+                    downloadSpeedInterval = null;
+                }
+
+                // آپدیت UI
+                $('#pauseDownloadBtn').hide();
+                $('#resumeDownloadBtn').hide();
+
+                // نمایش پیام موفقیت
+                messageSystem.addMessage(
+                    `دانلود کامل شد! ${downloadStats.completed} از ${downloadStats.total} آیتم با موفقیت دانلود شدند.`,
+                    'success',
+                    'دانلود کامل'
+                );
+
+                // ذخیره وضعیت نهایی
+                offlineMode = true;
+                localStorage.setItem('offline_mode', 'true');
+                $('#offlineModeSwitch').prop('checked', true);
+
+                // پاک کردن سشن
+                downloadManager.clear();
+            }
+
+            // ==================== رویدادهای دانلود ====================
+
+            function setupDownloadEvents() {
+                // رویداد تغییر نوع دانلود
+                $('input[name="downloadType"]').change(function () {
+                    if ($('#customDownload').is(':checked')) {
+                        $('#customOptions').show();
+                    } else {
+                        $('#customOptions').hide();
+                    }
+                });
+
+                // شروع دانلود
+                $('#startDownloadBtn').click(async function () {
+                    const config = {
+                        downloadImages: $('#downloadImages').is(':checked'),
+                        downloadAlbums: $('#downloadAlbums').is(':checked'),
+                        downloadDescriptions: $('#downloadDescriptions').is(':checked'),
+                        onlyFavorites: $('#downloadOnlyFavorites').is(':checked')
+                    };
+
+                    $('#confirmDownloadModal').modal('hide');
+
+                    const itemCount = await prepareDownload(config);
+                    if (itemCount > 0) {
+                        await startDownload();
+                    }
+                });
+
+                // توقف دانلود
+                $('#pauseDownloadBtn').click(function () {
+                    isPaused = true;
+                    downloadStats.lastPauseTime = Date.now();
+                    messageSystem.addMessage('دانلود متوقف شد', 'warning');
+                });
+
+                // ادامه دانلود
+                $('#resumeDownloadBtn').click(function () {
+                    if (downloadStats.lastPauseTime) {
+                        downloadStats.pausedTime += Date.now() - downloadStats.lastPauseTime;
+                        downloadStats.lastPauseTime = null;
+                    }
+
+                    isPaused = false;
+                    $('#resumeDownloadBtn').hide();
+                    $('#pauseDownloadBtn').show();
+
+                    messageSystem.addMessage('دانلود ادامه می‌یابد', 'info');
+
+                    // ادامه پردازش صف
+                    processDownloadQueue();
+                });
+
+                // لغو دانلود
+                $('#cancelDownloadBtn').click(function () {
+                    if (confirm('آیا از لغو دانلود مطمئن هستید؟')) {
+                        isDownloading = false;
+                        isPaused = false;
+
+                        if (downloadSpeedInterval) {
+                            clearInterval(downloadSpeedInterval);
+                            downloadSpeedInterval = null;
+                        }
+
+                        downloadManager.clear();
+
+                        $('#downloadManagerModal').modal('hide');
+                        messageSystem.addMessage('دانلود لغو شد', 'warning');
+                    }
+                });
+
+                // ذخیره گزارش
+                $('#exportLogsBtn').click(function () {
+                    const logs = $('#downloadLogs').html();
+                    const blob = new Blob([logs], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `download_log_${new Date().toISOString().split('T')[0]}.html`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                });
+
+                // نمایش مودال تأیید دانلود هنگام کلیک بر روی سوئیچ
+                $('#offlineModeSwitch').change(function () {
+                    if (this.checked) {
+                        $('#confirmDownloadModal').modal('show');
+
+                        // محاسبه حجم تخمینی
+                        const estimated = jsonData.length * 0.3; // 0.3MB به ازای هر شخص
+                        $('#estimatedSize2').text(`${estimated.toFixed(1)} مگابایت`);
+                    } else {
+                        offlineMode = false;
+                        localStorage.setItem('offline_mode', 'false');
+                        messageSystem.addMessage('حالت آنلاین فعال شد', 'info');
+                    }
+                });
+            }
+
+            // ==================== مقداردهی اولیه ====================
+
+            async function initialize() {
+                // مقداردهی اولیه IndexedDB
+                try {
+                    await initDatabase();
+                    messageSystem.addMessage('سیستم ذخیره‌سازی آماده است', 'success');
+                } catch (error) {
+                    messageSystem.addMessage('خطا در راه‌اندازی سیستم ذخیره‌سازی', 'danger');
+                }
+
+                // تنظیم سوئیچ حالت آفلاین
+                $('#offlineModeSwitch').prop('checked', offlineMode);
+
+                // تنظیم رویدادها
+                setupDownloadEvents();
+                setupEventListeners();
+
+                // بارگذاری داده‌ها
+                await loadJSONData();
+
+                // اگر سشن دانلود ناتمام وجود دارد، پیام نشان بده
+                const savedSession = localStorage.getItem('last_download_session');
+                if (savedSession) {
+                    try {
+                        const sessionData = JSON.parse(savedSession);
+                        const completed = sessionData.progress.completed || 0;
+                        const total = sessionData.progress.total || 0;
+
+                        if (completed < total) {
+                            const resumeBtn = $('<button>')
+                                .addClass('btn btn-warning btn-sm me-2')
+                                .html('<i class="fas fa-play me-1"></i>ادامه دانلود')
+                                .click(function () {
+                                    if (downloadManager.resume()) {
+                                        $('#downloadManagerModal').modal('show');
+                                        startDownload();
+                                    }
+                                });
+
+                            messageSystem.addMessage(
+                                `یک دانلود ناتمام وجود دارد (${completed}/${total}). آیا می‌خواهید ادامه دهید؟`,
+                                'warning',
+                                'دانلود ناتمام',
+                                false
+                            );
+                        }
+                    } catch (e) {
+                        console.error('خطا در بررسی سشن دانلود:', e);
+                    }
+                }
+
+                messageSystem.addMessage('برنامه آماده است', 'success');
+            }
+
+            // ==================== بقیه توابع (مانند قبل) ====================
+
+            // تابع بارگذاری داده‌ها
+            async function loadJSONData() {
+                $('#gallery').html(`
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">در حال بارگذاری...</span>
+            </div>
+            <p class="mt-3 text-muted">در حال بارگذاری داده‌ها...</p>
+        </div>
+    `);
+
+                messageSystem.addMessage('در حال بارگذاری اطلاعات بازیگران...', 'info', 'بارگذاری داده‌ها');
+
+                // اگر حالت آفلاین فعال است، اول از IndexedDB بخوان
+                if (offlineMode && db) {
+                    try {
+                        const cachedData = await getFromDB('actors');
+                        if (cachedData && cachedData.length > 0) {
+                            jsonData = cachedData;
+                            const msg = `بارگذاری ${cachedData.length} بازیگر از حافظه آفلاین`;
+                            messageSystem.addMessage(msg, 'success', 'حالت آفلاین');
+                            console.log(msg);
+                            applyFilters();
+                            return;
+                        }
+                    } catch (error) {
+                        console.warn('خطا در خواندن از کش آفلاین:', error);
+                        messageSystem.addMessage('خطا در خواندن داده‌های آفلاین', 'warning');
+                    }
+                }
+
+                // اگر آنلاین هستیم، از فایل JSON بارگیری کن
+                if (navigator.onLine) {
+                    $.ajax({
+                        url: "BAZPRO.json",
+                        method: "GET",
+                        dataType: "json",
+                        success: async function (data) {
+                            if (!data || !Array.isArray(data)) {
+                                throw new Error('داده‌های نامعتبر دریافت شد');
+                            }
+
+                            jsonData = data.map(person => {
+                                const personId = person.id || person.name.replace(/\s+/g, '_');
+                                return {
+                                    ...person,
+                                    id: personId,
+                                    birthYear: parseInt(person.birthYear) || 0,
+                                    daydeath: person.daydeath ? parseInt(person.daydeath) : null,
+                                    timestamp: Date.now()
+                                };
+                            });
+
+                            const msg = `${jsonData.length} بازیگر بارگذاری شد`;
+                            messageSystem.addMessage(msg, 'success', 'بارگذاری موفق');
+
+                            // ذخیره در IndexedDB برای استفاده آفلاین
+                            if (db) {
+                                try {
+                                    await saveToDB('actors', jsonData);
+                                    messageSystem.addMessage('داده‌ها در حافظه موقت ذخیره شدند', 'info');
+                                } catch (error) {
+                                    console.error('خطا در ذخیره داده‌ها:', error);
+                                }
+                            }
+
+                            applyFilters();
+                        },
+                        error: function (xhr, status, error) {
+                            let errorMsg = 'خطا در بارگذاری داده‌ها';
+
+                            if (xhr.status === 404) {
+                                errorMsg = 'فایل داده‌ها یافت نشد (BAZPRO.json)';
+                            } else if (xhr.status === 0) {
+                                errorMsg = 'اتصال به سرور برقرار نیست';
+                            } else {
+                                errorMsg = `خطای ${xhr.status}: ${error}`;
+                            }
+
+                            messageSystem.addMessage(errorMsg, 'danger', 'خطای بارگذاری');
+
+                            // اگر حالت آفلاین فعال است، سعی کن از کش بخوانی
+                            if (offlineMode && db) {
+                                messageSystem.addMessage('تلاش برای بارگذاری از حافظه موقت...', 'info');
+                                loadFromCache();
+                            } else {
+                                showError(errorMsg);
+                            }
+                        }
+                    });
+                } else {
+                    // اگر آنلاین نیستیم
+                    if (offlineMode) {
+                        messageSystem.addMessage('در حالت آفلاین هستید. بارگذاری از حافظه موقت...', 'info');
+                        loadFromCache();
+                    } else {
+                        const errorMsg = 'اتصال اینترنت برقرار نیست. لطفا حالت آفلاین را فعال کنید.';
+                        messageSystem.addMessage(errorMsg, 'danger', 'خطای اتصال');
+                        showError(errorMsg);
+                    }
+                }
+            }
+
+            // بارگذاری از کش
+            async function loadFromCache() {
+                if (!db) {
+                    const errorMsg = 'سیستم ذخیره‌سازی در دسترس نیست';
+                    messageSystem.addMessage(errorMsg, 'danger', 'خطای کش');
+                    showError(errorMsg);
+                    return;
+                }
+
+                try {
+                    const cachedData = await getFromDB('actors');
+                    if (cachedData && cachedData.length > 0) {
+                        jsonData = cachedData;
+                        const msg = `بارگذاری ${cachedData.length} بازیگر از حافظه موقت`;
+                        messageSystem.addMessage(msg, 'success', 'بارگذاری از کش');
+                        applyFilters();
+                    } else {
+                        const errorMsg = 'داده‌ای در حافظه موقت یافت نشد';
+                        messageSystem.addMessage(errorMsg, 'warning', 'کش خالی');
+                        showError(errorMsg);
+                    }
+                } catch (error) {
+                    const errorMsg = 'خطا در بارگذاری از حافظه موقت';
+                    messageSystem.addMessage(errorMsg, 'danger', 'خطای کش');
+                    showError(errorMsg);
+                    console.error('خطا در loadFromCache:', error);
+                }
+            }
+
+            // توابع کمکی برای IndexedDB
+            async function getFromDB(storeName, key) {
+                if (!db) return key ? null : [];
+
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([storeName], 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = key ? store.get(key) : store.getAll();
+
+                    request.onsuccess = (event) => {
+                        if (key) {
+                            resolve(event.target.result);
+                        } else {
+                            resolve(event.target.result);
+                        }
+                    };
+
+                    request.onerror = (event) => {
+                        console.error(`خطا در خواندن از ${storeName}:`, event.target.error);
+                        reject(event.target.error);
+                    };
+                });
+            }
+
+            async function saveToDB(storeName, data) {
+                if (!db) return false;
+
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([storeName], 'readwrite');
+                    const store = transaction.objectStore(storeName);
+
+                    transaction.oncomplete = () => resolve(true);
+                    transaction.onerror = (event) => {
+                        console.error(`خطا در ذخیره در ${storeName}:`, event.target.error);
+                        reject(false);
+                    };
+
+                    if (Array.isArray(data)) {
+                        // حذف موارد قدیمی قبل از ذخیره جدید
+                        const clearRequest = store.clear();
+                        clearRequest.onsuccess = () => {
+                            data.forEach(item => store.put(item));
+                        };
+                        clearRequest.onerror = (event) => reject(event.target.error);
+                    } else {
+                        store.put(data);
+                    }
+                });
+            }
+
+            // تابع getPersonImage (به‌روزرسانی شده)
+            async function getPersonImage(person) {
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+
+                // 1. بررسی کش localStorage
+                const localStorageImage = localStorage.getItem(`image_${personId}`);
+                if (localStorageImage && localStorageImage !== 'null') {
+                    // اگر Data URL باشد
+                    if (localStorageImage.startsWith('data:')) {
+                        return localStorageImage;
+                    }
+                    // اگر آدرس باشد
+                    return localStorageImage;
+                }
+
+                // 2. بررسی IndexedDB (اگر حالت آفلاین فعال باشد)
+                if (offlineMode && db) {
+                    try {
+                        const dbImage = await getFromDB('images', `main_${personId}`);
+                        if (dbImage && dbImage.blob) {
+                            // تبدیل blob به Data URL
+                            const dataURL = await blobToDataURL(dbImage.blob);
+                            localStorage.setItem(`image_${personId}`, dataURL);
+                            messageSystem.addDownloadLog(`تصویر ${person.name} از کش آفلاین بارگذاری شد`, 'info');
+                            return dataURL;
+                        }
+                    } catch (error) {
+                        console.warn(`خطا در خواندن تصویر از DB برای ${person.name}:`, error);
+                    }
+                }
+
+                // 3. بررسی تصویر محلی از JSON
+                if (person.image) {
+                    try {
+                        const imagePath = `img/${person.image}`;
+                        const imageExists = await checkImageExists(imagePath);
+
+                        if (imageExists) {
+                            // اگر حالت آفلاین فعال است، در IndexedDB ذخیره کن
+                            if (offlineMode && db) {
+                                try {
+                                    const response = await fetch(imagePath);
+                                    const blob = await response.blob();
+                                    await saveImageToDB(personId, blob, 'main', 'local');
+                                } catch (error) {
+                                    console.warn(`خطا در ذخیره تصویر محلی ${person.name}:`, error);
+                                }
+                            }
+
+                            localStorage.setItem(`image_${personId}`, imagePath);
+                            messageSystem.addDownloadLog(`تصویر ${person.name} از پوشه img بارگذاری شد`, 'success');
+                            return imagePath;
+                        }
+                    } catch (error) {
+                        console.warn(`خطا در بررسی تصویر محلی ${person.name}:`, error);
+                    }
+                }
+
+                // 4. دریافت از ویکی‌پدیا (فقط اگر آنلاین باشیم و حالت آفلاین نباشد)
+                if (navigator.onLine && !offlineMode) {
+                    try {
+                        const title = person.name.replace(/\s+/g, '_');
+                        const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&piprop=thumbnail&pithumbsize=400&format=json&origin=*`;
+
+                        const response = await $.getJSON(apiUrl);
+                        const pages = response.query.pages;
+                        const page = Object.values(pages)[0];
+
+                        if (page.thumbnail?.source) {
+                            const imageUrl = page.thumbnail.source;
+
+                            // ذخیره در localStorage
+                            localStorage.setItem(`image_${personId}`, imageUrl);
+
+                            // ذخیره در IndexedDB اگر DB موجود باشد
+                            if (db) {
+                                try {
+                                    const imgResponse = await fetch(imageUrl);
+                                    const blob = await imgResponse.blob();
+
+                                    await saveImageToDB(personId, blob, 'main', 'wikipedia');
+                                    messageSystem.addDownloadLog(`تصویر ${person.name} از ویکی‌پدیا ذخیره شد`, 'success');
+                                } catch (error) {
+                                    console.warn(`خطا در ذخیره تصویر ویکی‌پدیا ${person.name}:`, error);
+                                }
+                            }
+
+                            messageSystem.addDownloadLog(`تصویر ${person.name} از ویکی‌پدیا دریافت شد`, 'info');
+                            return imageUrl;
+                        }
+                    } catch (error) {
+                        console.error(`خطا در دریافت تصویر از ویکی‌پدیا برای ${person.name}:`, error);
+                        messageSystem.addDownloadLog(`خطا در دریافت تصویر ${person.name} از ویکی‌پدیا`, 'error');
+                    }
+                }
+
+                // 5. تصویر پیش‌فرض
+                messageSystem.addDownloadLog(`تصویر ${person.name} یافت نشد. استفاده از تصویر پیش‌فرض`, 'warning');
+                localStorage.setItem(`image_${personId}`, placeholderImage);
+                return placeholderImage;
+            }
+
+            // تبدیل blob به Data URL
+            function blobToDataURL(blob) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            }
+
+            // بررسی وجود تصویر
+            async function checkImageExists(url) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve(true);
+                    img.onerror = () => resolve(false);
+                    img.src = url;
+
+                    // تایم‌اوت برای جلوگیری از انتظار طولانی
+                    setTimeout(() => resolve(false), 3000);
+                });
+            }
+
+            // تابع getPersonDescription (به‌روزرسانی شده)
+            async function getPersonDescription(person) {
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+
+                // 1. بررسی localStorage
+                const localStorageDesc = localStorage.getItem(`description_${personId}`);
+                if (localStorageDesc) {
+                    return localStorageDesc;
+                }
+
+                // 2. بررسی IndexedDB
+                if (db) {
+                    try {
+                        const dbDesc = await getFromDB('descriptions', personId);
+                        if (dbDesc && dbDesc.text) {
+                            localStorage.setItem(`description_${personId}`, dbDesc.text);
+                            return dbDesc.text;
+                        }
+                    } catch (error) {
+                        console.warn(`خطا در خواندن توضیحات از DB برای ${person.name}:`, error);
+                    }
+                }
+
+                // 3. دریافت از ویکی‌پدیا (فقط اگر آنلاین باشیم)
+                if (navigator.onLine) {
+                    try {
+                        const title = person.name.replace(/\s+/g, '_');
+                        const apiUrl = `https://fa.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=extracts&exintro&explaintext&format=json&origin=*`;
+
+                        const response = await $.getJSON(apiUrl);
+                        const pages = response.query.pages;
+                        const page = Object.values(pages)[0];
+
+                        if (page.extract) {
+                            const description = page.extract;
+
+                            // ذخیره در localStorage
+                            localStorage.setItem(`description_${personId}`, description);
+
+                            // ذخیره در IndexedDB
+                            if (db) {
+                                try {
+                                    await saveDescriptionToDB(personId, description);
+                                } catch (error) {
+                                    console.warn(`خطا در ذخیره توضیحات ${person.name}:`, error);
+                                }
+                            }
+
+                            messageSystem.addDownloadLog(`توضیحات ${person.name} از ویکی‌پدیا دریافت شد`, 'info');
+                            return description;
+                        }
+                    } catch (error) {
+                        console.error(`خطا در دریافت توضیحات از ویکی‌پدیا برای ${person.name}:`, error);
+                        messageSystem.addDownloadLog(`خطا در دریافت توضیحات ${person.name} از ویکی‌پدیا`, 'error');
+                    }
+                }
+
+                // 4. توضیحات پیش‌فرض
+                const defaultDesc = person.status ?
+                    `${person.name} ${person.status}` :
+                    'اطلاعات بیشتری در دسترس نیست.';
+
+                localStorage.setItem(`description_${personId}`, defaultDesc);
+                return defaultDesc;
+            }
+
+            // تابع getAlbumImages (به‌روزرسانی شده)
+            async function getAlbumImages(person) {
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+
+                // 1. بررسی localStorage
+                const localStorageAlbum = localStorage.getItem(`album_${personId}`);
+                if (localStorageAlbum) {
+                    try {
+                        return JSON.parse(localStorageAlbum);
+                    } catch (error) {
+                        console.warn(`خطا در پارس آلبوم localStorage برای ${person.name}:`, error);
+                    }
+                }
+
+                // 2. بررسی IndexedDB
+                if (db) {
+                    try {
+                        const albumImages = [];
+
+                        // باز کردن تراکنش برای خواندن همه تصاویر آلبوم این شخص
+                        const transaction = db.transaction(['images'], 'readonly');
+                        const store = transaction.objectStore('images');
+                        const index = store.index('personId');
+                        const range = IDBKeyRange.only(personId);
+
+                        return new Promise((resolve) => {
+                            const request = index.openCursor(range);
+                            const images = [];
+
+                            request.onsuccess = async (event) => {
+                                const cursor = event.target.result;
+                                if (cursor) {
+                                    if (cursor.value.type === 'album') {
+                                        try {
+                                            const dataURL = await blobToDataURL(cursor.value.blob);
+                                            images.push({
+                                                url: dataURL,
+                                                index: cursor.value.index,
+                                                source: cursor.value.source || 'unknown'
+                                            });
+                                        } catch (error) {
+                                            console.warn(`خطا در تبدیل blob برای ${person.name}:`, error);
+                                        }
+                                    }
+                                    cursor.continue();
+                                } else {
+                                    // مرتب‌سازی بر اساس index
+                                    images.sort((a, b) => (a.index || 0) - (b.index || 0));
+                                    const urls = images.map(img => img.url);
+
+                                    // ذخیره در localStorage
+                                    localStorage.setItem(`album_${personId}`, JSON.stringify(urls));
+
+                                    if (urls.length > 0) {
+                                        messageSystem.addDownloadLog(`${urls.length} تصویر آلبوم برای ${person.name} یافت شد`, 'info');
+                                    }
+
+                                    resolve(urls);
+                                }
+                            };
+
+                            request.onerror = () => {
+                                console.warn(`خطا در خواندن آلبوم از DB برای ${person.name}`);
+                                resolve([]);
+                            };
+                        });
+                    } catch (error) {
+                        console.warn(`خطا در دسترسی به آلبوم DB برای ${person.name}:`, error);
+                    }
+                }
+
+                // 3. جستجوی تصاویر در پوشه img
+                const albumImages = [];
+                const baseName = person.name.trim();
+
+                // محدود کردن جستجو به ۵ تصویر برای عملکرد بهتر
+                for (let i = 1; i <= 5; i++) {
+                    const imageName = `${baseName} ${i}.jpg`;
+                    const imagePath = `img/${imageName}`;
+
+                    try {
+                        const exists = await checkImageExists(imagePath);
+                        if (exists) {
+                            albumImages.push(imagePath);
+                            messageSystem.addDownloadLog(`تصویر آلبوم ${imageName} برای ${person.name} یافت شد`, 'success');
+
+                            // اگر حالت آفلاین فعال است، در IndexedDB ذخیره کن
+                            if (offlineMode && db) {
+                                try {
+                                    const response = await fetch(imagePath);
+                                    const blob = await response.blob();
+                                    await saveImageToDB(personId, blob, 'album', 'local', i);
+                                } catch (error) {
+                                    console.warn(`خطا در ذخیره تصویر آلبوم ${person.name}:`, error);
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        console.warn(`خطا در بررسی تصویر ${imageName}:`, error);
+                    }
+                }
+
+                // ذخیره در localStorage
+                localStorage.setItem(`album_${personId}`, JSON.stringify(albumImages));
+
+                return albumImages;
+            }
+
+            // رندر گالری اصلی (به‌روزرسانی شده)
+            async function renderMainGallery(data) {
+                const gallery = $('#gallery').empty();
+
+                if (data.length === 0) {
+                    gallery.html(`
+            <div class="empty-state text-muted" data-aos="fade-up">
+                <div class="mb-3">
+                    <i class="fas fa-search fa-3x text-secondary"></i>
+                </div>
+                <h4 class="mb-2">موردی یافت نشد</h4>
+                <p class="text-muted">سعی کنید فیلترهای جستجو را تغییر دهید</p>
+            </div>
+        `);
+
+                    messageSystem.addMessage('هیچ بازیگری با فیلترهای انتخابی یافت نشد', 'warning', 'جستجو');
+                    return;
+                }
+
+                // نمایش تعداد نتایج
+                messageSystem.addMessage(`${data.length} بازیگر با فیلترهای انتخابی یافت شد`, 'info', 'نتایج جستجو');
+
+                // ایجاد spinner برای بارگذاری تصاویر
+                gallery.html(`
+        <div class="col-12 text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">در حال بارگذاری تصاویر...</span>
+            </div>
+            <p class="mt-2 text-muted">در حال بارگذاری ${data.length} تصویر...</p>
+        </div>
+    `);
+
+                try {
+                    // بارگذاری تصاویر به صورت موازی با محدودیت
+                    const batchSize = 6; // 6 تصویر همزمان
+                    const cards = [];
+
+                    for (let i = 0; i < data.length; i += batchSize) {
+                        const batch = data.slice(i, i + batchSize);
+                        const batchCards = await Promise.all(
+                            batch.map(person => createPersonCard(person))
+                        );
+                        cards.push(...batchCards);
+
+                        // آپدیت پیشرفت بارگذاری
+                        const progress = Math.round((cards.length / data.length) * 100);
+                        gallery.find('p').text(`در حال بارگذاری ${cards.length} از ${data.length} تصویر (${progress}%)`);
+                    }
+
+                    // نمایش همه کارت‌ها
+                    gallery.empty().append(cards);
+
+                    // رفرش انیمیشن‌ها
+                    if (typeof AOS !== 'undefined') {
+                        AOS.refresh();
+                    }
+
+                    messageSystem.addMessage(`${data.length} کارت با موفقیت نمایش داده شد`, 'success', 'نمایش گالری');
+
+                } catch (error) {
+                    console.error('خطا در رندر گالری:', error);
+                    messageSystem.addMessage('خطا در بارگذاری برخی تصاویر', 'warning', 'خطای بارگذاری');
+
+                    // نمایش حداقل داده‌ها
+                    const fallbackCards = await Promise.all(
+                        data.map(person => createPersonCard(person, true))
+                    );
+                    gallery.empty().append(fallbackCards);
+                }
+            }
+
+            // ایجاد کارت شخص (به‌روزرسانی شده)
+            async function createPersonCard(person, useFallback = false) {
+                const age = calculateAge(person);
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+                const isFavorite = getFavorites().includes(personId);
+
+                let imageSrc = placeholderImage;
+
+                if (!useFallback) {
+                    try {
+                        imageSrc = await getPersonImage(person);
+                    } catch (error) {
+                        console.warn(`خطا در دریافت تصویر ${person.name}:`, error);
+                        messageSystem.addDownloadLog(`خطا در بارگذاری تصویر ${person.name}`, 'error');
+                    }
+                }
+
+                // ایجاد المان کارت
+                const card = $(`
+        <div class="col-6 col-md-4 col-lg-3 col-xl-2 mb-4" data-aos="fade-up" data-person-id="${personId}">
+            <div class="card h-100 shadow-sm border-hover">
+                <div class="position-relative">
+                    <img src="${imageSrc}" 
+                         class="card-img-top person-image" 
+                         alt="${person.name}"
+                         loading="lazy"
+                         data-person-id="${personId}"
+                         onerror="this.src='${placeholderImage}'; this.onerror=null;">
+                    <button class="btn btn-sm favorite-toggle ${isFavorite ? 'btn-danger' : 'btn-outline-danger'} position-absolute top-0 end-0 m-2"
+                            data-person-id="${personId}"
+                            title="${isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}">
+                        <i class="fas fa-heart ${isFavorite ? 'fas' : 'far'}"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-truncate" title="${person.name}">${person.name}</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary">${age} سال</span>
+                        <span class="badge ${person.gender === 'مرد' ? 'bg-primary' : 'bg-pink'}">
+                            ${person.gender || 'نامشخص'}
+                        </span>
+                    </div>
+                    ${person.status ? `<p class="card-text small text-muted mt-2">${person.status}</p>` : ''}
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <button class="btn btn-outline-primary btn-sm w-100 view-details"
+                            data-person-id="${personId}">
+                        <i class="fas fa-eye me-1"></i> مشاهده جزئیات
+                    </button>
+                </div>
+            </div>
+        </div>
+    `);
+
+                // اضافه کردن رویدادها
+                card.find('.person-image').click(function () {
+                    showDetailsModal(person);
+                });
+
+                card.find('.view-details').click(function (e) {
+                    e.stopPropagation();
+                    showDetailsModal(person);
+                });
+
+                card.find('.favorite-toggle').click(function (e) {
+                    e.stopPropagation();
+                    toggleFavorite(person);
+
+                    const isNowFavorite = getFavorites().includes(personId);
+                    $(this)
+                        .toggleClass('btn-danger btn-outline-danger')
+                        .attr('title', isNowFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها')
+                        .find('i')
+                        .toggleClass('fas far');
+
+                    // نمایش پیام
+                    const message = isNowFavorite ?
+                        `${person.name} به علاقه‌مندی‌ها اضافه شد` :
+                        `${person.name} از علاقه‌مندی‌ها حذف شد`;
+
+                    messageSystem.addMessage(message, 'success', 'علاقه‌مندی‌ها');
+                });
+
+                return card;
+            }
+
+            // نمایش مودال جزئیات (به‌روزرسانی شده)
+            async function showDetailsModal(person) {
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+
+                // پنهان کردن محتوای قبلی و نمایش spinner
+                $('#personImage, #personDescription, #albumGallery, #personDetails').addClass('d-none');
+                $('.modal-body .spinner-border').removeClass('d-none');
+
+                // تنظیم اطلاعات اولیه
+                $('#personName').text(person.name);
+                $('#personStatus').text(person.status || '');
+
+                // بارگذاری اطلاعات به صورت موازی
+                try {
+                    const [imageSrc, description, albumImages] = await Promise.all([
+                        getPersonImage(person),
+                        getPersonDescription(person),
+                        getAlbumImages(person)
+                    ]);
+
+                    // مخفی کردن spinner و نمایش محتوا
+                    $('.modal-body .spinner-border').addClass('d-none');
+
+                    // نمایش تصویر
+                    $('#personImage')
+                        .attr('src', imageSrc)
+                        .attr('alt', person.name)
+                        .removeClass('d-none');
+
+                    // نمایش توضیحات
+                    $('#personDescription')
+                        .text(description)
+                        .removeClass('d-none');
+
+                    // نمایش اطلاعات اضافی
+                    const age = calculateAge(person);
+                    const detailsHTML = `
+            <div class="row g-3" id="personDetails">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-birthday-cake me-2"></i>اطلاعات سن</h6>
+                            <p class="mb-1"><strong>سن:</strong> ${age} سال</p>
+                            ${person.birthYear ? `<p class="mb-1"><strong>سال تولد:</strong> ${person.birthYear}</p>` : ''}
+                            ${person.daydeath ? `<p class="mb-0"><strong>سال فوت:</strong> ${person.daydeath}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="fas fa-user me-2"></i>اطلاعات شخصی</h6>
+                            <p class="mb-1"><strong>جنسیت:</strong> ${person.gender || 'نامشخص'}</p>
+                            ${person.status ? `<p class="mb-0"><strong>وضعیت:</strong> ${person.status}</p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                    $('#personDetails').remove();
+                    $('#personDescription').after(detailsHTML);
+
+                    // مدیریت آلبوم تصاویر
+                    const albumGallery = $('#albumGallery').empty();
+                    if (albumImages.length > 0) {
+                        $('#showAlbum').removeClass('d-none');
+
+                        $('#showAlbum').off('click').click(async function () {
+                            $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>در حال بارگذاری...');
+
+                            albumImages.forEach((src, index) => {
+                                albumGallery.append(`
+                        <div class="col-6 col-md-4 col-lg-3 mb-3">
+                            <div class="album-thumbnail position-relative">
+                                <img src="${src}" 
+                                     class="img-fluid rounded album-img" 
+                                     alt="${person.name} - تصویر ${index + 1}"
+                                     loading="lazy"
+                                     data-index="${index}"
+                                     onerror="this.src='${placeholderImage}'">
+                                <span class="badge bg-dark position-absolute bottom-0 start-0 m-1">${index + 1}</span>
+                            </div>
+                        </div>
+                    `);
+                            });
+
+                            albumGallery.removeClass('d-none');
+                            $(this).hide();
+
+                            messageSystem.addMessage(`${albumImages.length} تصویر آلبوم نمایش داده شد`, 'info', 'آلبوم تصاویر');
+                        });
+                    } else {
+                        $('#showAlbum').addClass('d-none');
+                    }
+
+                    // تنظیم دکمه‌های اکشن
+                    setupDetailModalActions(person, imageSrc);
+
+                    // نمایش مودال
+                    const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+                    modal.show();
+
+                    messageSystem.addMessage(`جزئیات ${person.name} نمایش داده شد`, 'info', 'جزئیات بازیگر');
+
+                } catch (error) {
+                    console.error('خطا در بارگذاری جزئیات:', error);
+                    $('.modal-body .spinner-border').addClass('d-none');
+
+                    $('#personDescription')
+                        .text('خطا در بارگذاری اطلاعات. لطفا دوباره تلاش کنید.')
+                        .removeClass('d-none');
+
+                    messageSystem.addMessage(`خطا در بارگذاری اطلاعات ${person.name}`, 'danger', 'خطای جزئیات');
+                }
+            }
+
+            // تنظیم دکمه‌های اکشن مودال جزئیات
+            function setupDetailModalActions(person, imageSrc) {
+                const personId = person.id || person.name.replace(/\s+/g, '_');
+                const wikiUrl = `https://fa.wikipedia.org/wiki/${encodeURIComponent(person.name)}`;
+                const isFavorite = getFavorites().includes(personId);
+
+                // دکمه دانلود
+                $('#downloadBtn').off('click').click(function () {
+                    const a = document.createElement('a');
+                    a.href = imageSrc;
+                    a.download = `${person.name}.${imageSrc.split('.').pop()}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+
+                    messageSystem.addMessage(`تصویر ${person.name} دانلود شد`, 'success', 'دانلود');
+                });
+
+                // دکمه ویکی‌پدیا
+                $('#wikipediaBtn').off('click').click(function () {
+                    window.open(wikiUrl, '_blank');
+                    messageSystem.addMessage(`صفحه ویکی‌پدیا ${person.name} باز شد`, 'info', 'ویکی‌پدیا');
+                });
+
+                // دکمه علاقه‌مندی
+                $('#favoriteBtn')
+                    .off('click')
+                    .removeClass('btn-danger btn-outline-danger')
+                    .addClass(isFavorite ? 'btn-danger' : 'btn-outline-danger')
+                    .html(`<i class="${isFavorite ? 'fas' : 'far'} fa-heart me-1"></i>${isFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}`)
+                    .click(function () {
+                        toggleFavorite(person);
+
+                        const isNowFavorite = getFavorites().includes(personId);
+                        $(this)
+                            .toggleClass('btn-danger btn-outline-danger')
+                            .html(`<i class="${isNowFavorite ? 'fas' : 'far'} fa-heart me-1"></i>${isNowFavorite ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}`);
+
+                        const message = isNowFavorite ?
+                            `${person.name} به علاقه‌مندی‌ها اضافه شد` :
+                            `${person.name} از علاقه‌مندی‌ها حذف شد`;
+
+                        messageSystem.addMessage(message, 'success', 'علاقه‌مندی‌ها');
+                    });
+            }
+
+            // نمایش خطا
+            function showError(message) {
+                const errorHTML = `
+        <div class="alert alert-danger" role="alert" data-aos="fade-up">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div>
+                    <h5 class="alert-heading mb-2">خطا!</h5>
+                    <p class="mb-0">${message}</p>
+                    ${!navigator.onLine ? '<p class="mb-0 mt-2"><small>اتصال اینترنت خود را بررسی کنید یا حالت آفلاین را فعال نمایید.</small></p>' : ''}
+                </div>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-outline-danger btn-sm me-2" onclick="location.reload()">
+                    <i class="fas fa-redo me-1"></i>بارگذاری مجدد
+                </button>
+                ${!offlineMode ? '<button class="btn btn-outline-warning btn-sm" id="enableOfflineMode"><i class="fas fa-wifi-slash me-1"></i>فعال کردن حالت آفلاین</button>' : ''}
+            </div>
+        </div>
+    `;
+            };
+
+            $('#gallery').html(errorHTML);
+
+            $('#enableOfflineMode')?.click(function () {
+                offlineMode = true;
+                localStorage.setItem('offline_mode', 'true');
+                $('#offlineModeSwitch').prop('checked', true);
+                messageSystem.addMessage('حالت آفلاین فعال شد. در حال بارگذاری مجدد...', 'info');
+                setTimeout(() => location.reload(), 1000);
+            });
+        });
+    </script>
+</body>
+
+</html>
