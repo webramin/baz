@@ -3,76 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گالری بازیگران ایرانی</title>
 
-    <title>گالری بازیگران ایرانی | مجموعه کامل بازیگران سینما و تلویزیون</title>
-    <meta name="description" content="گالری جامع و تعاملی بازیگران ایرانی با امکان جستجوی زنده، فیلتر جنسیت و سن، مشاهده آلبوم تصاویر و بیوگرافی. همه اطلاعات به‌روز و زیبا در تم تاریک.">
+    <meta name="description"
+        content="گالری کامل بازیگران ایرانی با امکان جستجو، فیلتر و مشاهده بیوگرافی و آلبوم تصاویر">
 
-    <!-- SEO پایه + فارسی -->
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
-    <meta name="language" content="fa">
-    <meta name="rating" content="general">
-    <meta name="revisit-after" content="7 days">
-
-    <meta property="og:title" content="گالری بازیگران ایرانی | مجموعه کامل و تعاملی">
-    <meta property="og:description" content="جستجو، فیلتر و مشاهده بیوگرافی و آلبوم تصاویر صدها بازیگر ایرانی سینما و تلویزیون — تم تاریک، کاملاً فارسی و واکنش‌گرا">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://webramin.github.io/">
-    <meta property="og:site_name" content="گالری بازیگران">
-    <meta property="og:locale" content="fa_IR">
-    <!--  تصویر 1200×630  -->
-    <meta property="og:image" content="https://webramin.github.io/assets/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="گالری بازیگران ایرانی">
-
-    <!-- Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="گالری بازیگران ایرانی">
-    <meta name="twitter:description" content="مجموعه کامل بازیگران ایرانی با جستجو و فیلترهای پیشرفته">
-    <meta name="twitter:image" content="https://webramin.github.io/assets/og-image.jpg">
-
-    <!-- Canonical -->
-    <link rel="canonical" href="https://webramin.github.io/">
-
-    <!-- Favicon ها (حداقل این سه تا را داشته باش) -->
-    <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
-    <!-- Theme color برای مرورگر موبایل -->
-    <meta name="theme-color" content="#0a0c10">
-    <meta name="msapplication-TileColor" content="#0a0c10">
-
-    <!-- فونت Vazirmatn – نسخه جدید از jsDelivr -->
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003.0/Vazirmatn[wght].woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003.0/font-face.css" media="print" onload="this.media='all'">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-
+    <!-- Tabler + استایل‌های پروژه -->
     <link rel="stylesheet" href="tabler.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="baz.css">
 
-    <script src="https://raw.githubusercontent.com/webramin/baz/refs/heads/min/jQuery%20v3.7.1.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "گالری بازیگران ایرانی",
-      "url": "https://your-domain.com/",
-      "description": "گالری تعاملی و کامل بازیگران ایرانی سینما و تلویزیون",
-      "inLanguage": "fa-IR",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://your-domain.com/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
+    <!-- jQuery + Bootstrap JS -->
+    <script src="jquery-3.7.1.min.js"></script>
+    <script src="bootstrap.bundle.min.js"></script>
+
     <style>
         :root {
             --gold: #e8ba30;
@@ -258,7 +203,7 @@
         }
 
         .amar {
-            margin-top: 10rem;
+            margin-top: 8rem;
             margin-bottom: 2rem;
         }
     </style>
@@ -312,33 +257,33 @@
         </div>
     </div>
 
-   <!-- دکمه دوکاره بازگشت به بالا / پایین با دو نیم‌دایره -->
-<button id="scrollDualBtn" class="scroll-dual-btn" title="بالا / پایین صفحه" aria-label="اسکرول دوطرفه">
-  <svg class="progress-ring" width="64" height="64">
-    <!-- پس‌زمینه دایره -->
-    <circle class="progress-ring__bg" cx="32" cy="32" r="30"></circle>
-    
-    <!-- پیشرفت اسکرول (کل دایره) -->
-    <circle class="progress-ring__progress" cx="32" cy="32" r="30"></circle>
-  </svg>
+    <!-- دکمه دوکاره بازگشت به بالا / پایین با دو نیم‌دایره -->
+    <button id="scrollDualBtn" class="scroll-dual-btn" title="بالا / پایین صفحه" aria-label="اسکرول دوطرفه">
+        <svg class="progress-ring" width="64" height="64">
+            <!-- پس‌زمینه دایره -->
+            <circle class="progress-ring__bg" cx="32" cy="32" r="30"></circle>
 
-  <!-- خط جداکننده افقی وسط دایره -->
-  <hr class="split-line">
+            <!-- پیشرفت اسکرول (کل دایره) -->
+            <circle class="progress-ring__progress" cx="32" cy="32" r="30"></circle>
+        </svg>
 
-  <!-- فلش بالا (نیمه بالا) -->
-  <div class="half top-half" title="به بالای صفحه">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M12 19V5M5 12l7-7 7 7"/>
-    </svg>
-  </div>
+        <!-- خط جداکننده افقی وسط دایره -->
+        <hr class="split-line">
 
-  <!-- فلش پایین (نیمه پایین) -->
-  <div class="half bottom-half" title="به پایین صفحه">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M12 5v14M19 12l-7 7-7-7"/>
-    </svg>
-  </div>
-</button>
+        <!-- فلش بالا (نیمه بالا) -->
+        <div class="half top-half" title="به بالای صفحه">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+        </div>
+
+        <!-- فلش پایین (نیمه پایین) -->
+        <div class="half bottom-half" title="به پایین صفحه">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 5v14M19 12l-7 7-7-7" />
+            </svg>
+        </div>
+    </button>
 
     <main class="container-lg pb-5">
         <div class="actor-grid row g-4" id="gallery"></div>
@@ -618,99 +563,136 @@
         </div>
     </div>
 
-<!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script> -->
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+    <script>
+        $(document).ready(function () {
 
-<script>
-// تمام کد داخل ready
-$(document).ready(function () {
+            // ────────────────────────────────────────────────
+            // 1. متغیرهای سراسری
+            // ────────────────────────────────────────────────
+            let allActors = [];
+            let filteredActors = [];
+            let favorites = JSON.parse(localStorage.getItem('user_favorites')) || [];
 
-    // ────────────────────────────────────────────────
-    // متغیرها
-    // ────────────────────────────────────────────────
-    let allActors = [];
-    let filteredActors = [];
-    let favorites = JSON.parse(localStorage.getItem('user_favorites')) || [];
-    
-    const DATA_URL = "https://raw.githubusercontent.com/webramin/baz/min/BAZPRO.json";
-    const IMG_BASE = "https://raw.githubusercontent.com/webramin/baz/min/img/";
-    const GITHUB_API = "https://api.github.com/repos/webramin/baz/contents/img";
-    
-    let currentModalActorId = null;
-    
-    let currentGenderFilter = 'all';
-    let currentStatusFilter = 'all';
+            const DATA_URL = "BAZPRO.json";
+            const IMG_BASE = "https://raw.githubusercontent.com/webramin/baz/min/img/";
+            const GITHUB_API = "https://api.github.com/repos/webramin/baz/contents/img";
 
-    // ────────────────────────────────────────────────
-    // توابع کمکی (بدون تغییر زیاد)
-    // ────────────────────────────────────────────────
-    function normalizeId(name) {
-        return (name || '').replace(/[\s\u200C]+/g, '-').replace(/[^a-z0-9\-آ-ی]/gi, '').toLowerCase();
-    }
+            let currentModalActorId = null;   // برای همگام‌سازی قلب مودال
 
-    function calculateAge(birthYear, deathYear = null) {
-        const currentShamsi = new Date().getFullYear() - 621;
-        const refYear = deathYear || currentShamsi;
-        return birthYear ? (refYear - parseInt(birthYear)) : '؟';
-    }
+            // ────────────────────────────────────────────────
+            // 2. توابع کمکی
+            // ────────────────────────────────────────────────
+            function normalizeId(name) {
+                return (name || '').replace(/[\s\u200C]+/g, '-').replace(/[^a-z0-9\-آ-ی]/gi, '').toLowerCase();
+            }
 
-    function isFavorite(id) {
-        return favorites.includes(id);
-    }
+            function calculateAge(birthYear, deathYear = null) {
+                const currentShamsi = new Date().getFullYear() - 621;
+                const refYear = deathYear || currentShamsi;
+                return birthYear ? (refYear - parseInt(birthYear)) : '؟';
+            }
 
-    function toggleFavorite(id) {
-        if (favorites.includes(id)) {
-            favorites = favorites.filter(f => f !== id);
-        } else {
-            favorites.push(id);
-        }
-        localStorage.setItem('user_favorites', JSON.stringify(favorites));
-        updateCounters();
-        renderGallery(filteredActors);
+            function isFavorite(id) {
+                return favorites.includes(id);
+            }
 
-        if ($('#detailModal').hasClass('show') && currentModalActorId === id) {
-            $('#modalFavoriteBtn').toggleClass('active', isFavorite(id));
-        }
-    }
-
-    function updateCounters() {
-        $('#totalCount').text(allActors.length);
-        $('#showingCount').text(filteredActors.length);
-        $('#favoriteCount').text(favorites.length);
-    }
-
-    // ────────────────────────────────────────────────
-    // ساخت کارت (کمی بهینه‌تر)
-    // ────────────────────────────────────────────────
-    function createCard(actor) {
-        const id = actor.id;
-        const age = calculateAge(actor.birthYear, actor.deathYear);
-        const imgSrc = actor.profileImage ? IMG_BASE + actor.profileImage : '';
-        const statusClass = actor.status === 'فقید' ? 'status-deceased' : 'status-active';
-        const genderClass = actor.gender === 'مرد' ? 'tag-male' : 'tag-female';
-        const heartFill = isFavorite(id) ? 'fill:#e8ba30;color:#e8ba30;' : '';
-
-        return `
-        <div class="actor-card" data-id="${id}">
-            <div class="card-image">
-                ${imgSrc ? 
-                    `<img src="${imgSrc}" alt="${actor.fullName}" loading="lazy">` :
-                    `<div class="d-grid h-100 align-content-center justify-content-center text-center text-muted">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <small>بدون تصویر</small>
-                    </div>`
+            function toggleFavorite(id) {
+                if (favorites.includes(id)) {
+                    favorites = favorites.filter(f => f !== id);
+                } else {
+                    favorites.push(id);
                 }
+                localStorage.setItem('user_favorites', JSON.stringify(favorites));
+                updateCounters();
+                renderGallery(filteredActors);
+
+                // همگام‌سازی قلب داخل مودال اگر باز باشد
+                if ($('#detailModal').hasClass('show') && currentModalActorId === id) {
+                    $('#modalFavoriteBtn').toggleClass('active', isFavorite(id));
+                }
+            }
+
+            function updateCounters() {
+                $('#totalCount').text(allActors.length);
+                $('#showingCount').text(filteredActors.length);
+                $('#favoriteCount').text(favorites.length);
+            }
+
+            // ────────────────────────────────────────────────
+            // مدیریت صفحه علاقه‌مندی‌ها
+            // ────────────────────────────────────────────────
+
+            function renderFavorites() {
+                const favActors = allActors.filter(actor => isFavorite(actor.id));
+
+                if (favActors.length === 0) {
+                    $('#favoritesGallery').addClass('d-none');
+                    $('#noFavorites').removeClass('d-none');
+                } else {
+                    $('#noFavorites').addClass('d-none');
+                    $('#favoritesGallery').removeClass('d-none').html(
+                        favActors.map(createCard).join('')
+                    );
+                }
+            }
+
+            $('#showFavoritesBtn').on('click', function () {
+                $('#gallery').addClass('d-none');
+                $('#favoritesSection').removeClass('d-none');
+                renderFavorites();
+                // برای هماهنگی با شمارنده‌ها
+                updateCounters();
+            });
+
+            $('#backToGallery').on('click', function () {
+                $('#favoritesSection').addClass('d-none');
+                $('#gallery').removeClass('d-none');
+                // گالری اصلی رو با فیلترهای فعلی دوباره رندر می‌کنیم
+                applyFilters();
+            });
+
+
+            // ────────────────────────────────────────────────
+            // 3. ساخت کارت (دقیقاً مطابق نمونه‌ای که فرستادی)
+            // ────────────────────────────────────────────────
+            function createCard(actor) {
+                const id = actor.id;
+                const age = calculateAge(actor.birthYear, actor.deathYear);
+                const imgSrc = actor.profileImage ? IMG_BASE + actor.profileImage : '';
+                const hasImage = !!imgSrc;
+
+                const statusClass = actor.status === 'فقید' ? 'status-deceased' : 'status-active';
+                const genderClass = actor.gender === 'مرد' ? 'tag-male' : 'tag-female';
+                const heartStyle = isFavorite(id) ? 'fill: #e8ba30; color: #e8ba30;' : '';
+
+                let html = `
+                    <div class="actor-card" data-id="${id}">
+                           <div class="card-image">
+                     `;
+
+                if (hasImage) {
+                    html += `<img src="${imgSrc}" alt="${actor.fullName}" loading="lazy">`;
+                } else {
+                    html += `
+                <div class="d-grid" style="height:55%;align-content:space-evenly;justify-items:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lucide lucide-user mb-4 opacity-70">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="text-sm font-medium">تصویر موجود نیست</span>
+                </div>
+                `;
+                }
+
+                html += `
                 <div class="card-actions">
                     <button class="action-btn favorite-btn" data-id="${id}" title="علاقه‌مندی">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="${heartFill}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm" style="${heartStyle}">
                             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
                         </svg>
                     </button>
                     <button class="action-btn info-btn" data-id="${id}" title="جزئیات">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm">
                             <circle cx="12" cy="12" r="10"></circle>
                             <path d="M12 16v-4"></path>
                             <path d="M12 8h.01"></path>
@@ -723,200 +705,342 @@ $(document).ready(function () {
                 <div class="card-name">${actor.fullName}</div>
                 <div class="card-info">
                     <span class="age">${age} سال</span>
-                    <span>متولد ${actor.birthYear || '؟'}</span>
+                    <span>متولد ${actor.birthYear || 'نامشخص'}</span>
                 </div>
                 <div class="tags">
                     <span class="tag tag-${actor.status === 'فقید' ? 'deceased' : 'active'}">${actor.status}</span>
-                    <span class="tag ${genderClass}">${actor.gender || '?'}</span>
+                    <span class="tag ${genderClass}">${actor.gender}</span>
                 </div>
             </div>
         </div>`;
-    }
 
-    // ────────────────────────────────────────────────
-    // رندر گالری
-    // ────────────────────────────────────────────────
-    function renderGallery(actors) {
-        $('#gallery').html(
-            actors.length 
-                ? actors.map(createCard).join('')
-                : `<div class="col-12 text-center py-9">
-                     <div class="display-1 text-gold opacity-50 mb-4">🎬</div>
-                     <h4 class="text-white">هیچ بازیگری یافت نشد</h4>
-                   </div>`
-        );
-        updateCounters();
-    }
+                return html;
+            }
 
-    // ────────────────────────────────────────────────
-    // فیلتر کامل (جستجو + جنسیت + وضعیت)
-    // ────────────────────────────────────────────────
-    function applyFilters() {
-        const q = $('#searchInput').val().trim().toLowerCase();
+            // ────────────────────────────────────────────────
+            // 4. رندر گالری
+            // ────────────────────────────────────────────────
+            function renderGallery(actors) {
+                const html = actors.length
+                    ? actors.map(createCard).join('')
+                    : `<div class="col-12 text-center py-9">
+                 <div class="display-1 text-gold opacity-50 mb-4">🎬</div>
+                 <h4 class="text-white">هیچ بازیگری یافت نشد</h4>
+               </div>`;
 
-        filteredActors = allActors.filter(actor => {
-            const nameMatch = !q || actor.fullName.toLowerCase().includes(q);
-            const genderMatch = currentGenderFilter === 'all' || actor.gender === currentGenderFilter;
-            const statusMatch = currentStatusFilter === 'all' || actor.status === currentStatusFilter;
-            return nameMatch && genderMatch && statusMatch;
-        });
+                $('#gallery').html(html);
+                updateCounters();
+            }
 
-        renderGallery(filteredActors);
-    }
+            // ────────────────────────────────────────────────
+            // 5. جستجو و فیلتر
+            // ────────────────────────────────────────────────
+            function applyFilters() {
+                const q = $('#searchInput').val().trim().toLowerCase();
+                filteredActors = allActors.filter(a => !q || a.fullName.toLowerCase().includes(q));
+                renderGallery(filteredActors);
+            }
 
-    // ────────────────────────────────────────────────
-    // شروع برنامه – لود داده‌ها
-    // ────────────────────────────────────────────────
-    $.getJSON(DATA_URL)
-        .done(rawData => {
-            allActors = rawData.map(item => ({
-                id: normalizeId(item.name),
-                fullName: item.name,
-                birthYear: item.birthYear,
-                deathYear: item.daydeath,
-                gender: item.gender,
-                status: item.status,
-                profileImage: item.image
-            }));
+            // ────────────────────────────────────────────────
+            // 6. توابع لود بیوگرافی و آلبوم (همان قبلی + بهینه)
+            // ────────────────────────────────────────────────
+            function loadBioFromWikipedia(id, fullName, $target) {
+                const cacheKey = `description_${id}`;
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) { $target.text(cached); return; }
 
-            filteredActors = [...allActors];
-            renderGallery(filteredActors);
+                $target.html('<div class="modal-loading"><div class="spinner-border spinner-border-sm me-2"></div>در حال بارگذاری بیوگرافی...</div>');
 
-            // جستجوی زنده با debounce
-            let timeout;
-            $('#searchInput').on('input', () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(applyFilters, 280);
+                $.getJSON(`https://fa.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&redirects=1&titles=${encodeURIComponent(fullName)}&origin=*`)
+                    .done(data => {
+                        const extract = Object.values(data.query.pages)[0]?.extract || '';
+                        const bio = extract.length > 800 ? extract.substring(0, 780) + ' …' : extract;
+                        $target.text(bio || 'بیوگرافی یافت نشد');
+                        if (bio) localStorage.setItem(cacheKey, bio);
+                    })
+                    .fail(() => $target.text('خطا در دریافت بیوگرافی از ویکی‌پدیا'));
+            }
+
+            function loadAlbumFromGithub(id, fullName, $container) {
+                const cacheKey = `album_${id}`;
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) {
+                    renderAlbumImages(JSON.parse(cached), $container);
+                    return;
+                }
+
+                $container.html('<div class="modal-loading col-12"><div class="spinner-border spinner-border-sm me-2"></div>در حال بارگذاری آلبوم...</div>');
+
+                $.getJSON(GITHUB_API)
+                    .done(files => {
+                        const regex = new RegExp(fullName.replace(/[\s\u200C]+/g, '[ _-]*'), 'i');
+                        const urls = files
+                            .filter(f => f.type === 'file' && /\.(jpe?g|png|webp)$/i.test(f.name))
+                            .filter(f => regex.test(f.name))
+                            .map(f => f.download_url);
+
+                        renderAlbumImages(urls, $container);
+                        if (urls.length) localStorage.setItem(cacheKey, JSON.stringify(urls));
+                    })
+                    .fail(() => $container.html('<p class="text-muted text-center col-12 py-4">آلبوم در دسترس نیست</p>'));
+            }
+
+            function renderAlbumImages(urls, $container) {
+                $container.empty();
+                if (!urls.length) {
+                    $container.html('<p class="text-muted text-center col-12 py-4">تصویری موجود نیست</p>');
+                    return;
+                }
+                urls.forEach((url, i) => {
+                    $container.append(`
+                <div class="col-6 col-sm-4 col-md-3">
+                    <img src="${url}" class="album-img w-100 rounded shadow-sm" alt="تصویر ${i + 1}" loading="lazy"
+                         onerror="this.src='https://via.placeholder.com/300x400/1a1d24/666?text=خطا'">
+                </div>
+            `);
+                });
+            }
+
+            // ────────────────────────────────────────────────
+            // 7. پر کردن مودال
+            // ────────────────────────────────────────────────
+            function fillModal(actor) {
+                currentModalActorId = actor.id;
+
+                const age = calculateAge(actor.birthYear, actor.deathYear);
+                const imgSrc = actor.profileImage ? IMG_BASE + actor.profileImage : '';
+
+                $('#detailModalLabel').text(actor.fullName);
+                $('#modalProfileImg').attr('src', imgSrc || 'https://via.placeholder.com/400x533/1a1d24/9ca3af?text=بدون+تصویر');
+                $('#modalBirthYear').text(actor.birthYear || 'نامشخص');
+                $('#modalAge').text(age + ' سال');
+                $('#modalGender').text(actor.gender || 'نامشخص');
+                $('#modalStatus').text(actor.status);
+                $('#wikiLink').attr('href', `https://fa.wikipedia.org/wiki/${encodeURIComponent(actor.fullName)}`);
+
+                // تاریخ فوت
+                if (actor.status === 'فقید' && actor.deathYear) {
+                    $('#modalDeathYear').text(actor.deathYear);
+                    $('#deathRow').removeClass('d-none');
+                } else {
+                    $('#deathRow').addClass('d-none');
+                }
+
+                // قلب مودال
+                $('#modalFavoriteBtn').data('id', actor.id).toggleClass('active', isFavorite(actor.id));
+
+                // لود محتوای داینامیک
+                loadBioFromWikipedia(actor.id, actor.fullName, $('#modalBio'));
+                loadAlbumFromGithub(actor.id, actor.fullName, $('#modalAlbum'));
+            }
+
+            // ────────────────────────────────────────────────
+            // 8. شروع برنامه
+            // ────────────────────────────────────────────────
+            $.getJSON(DATA_URL)
+                .done(rawData => {
+                    allActors = rawData.map(item => ({
+                        id: normalizeId(item.name),
+                        fullName: item.name,
+                        birthYear: item.birthYear,
+                        deathYear: item.daydeath,
+                        gender: item.gender,
+                        status: item.status,
+                        profileImage: item.image
+                    }));
+
+                    filteredActors = [...allActors];
+                    renderGallery(filteredActors);
+                    updateCounters();
+
+                    // جستجوی زنده
+                    let timeout;
+                    $('#searchInput').on('input', () => {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(applyFilters, 280);
+                    });
+
+                    // ───── رویداد کلیک روی کارت ─────
+                    $(document).on('click', '.actor-card', function (e) {
+                        // اگر روی دکمه قلب کلیک شد → فقط toggle کن
+                        if ($(e.target).closest('.favorite-btn').length) return;
+
+                        const id = $(this).data('id');
+                        const actor = allActors.find(a => a.id === id);
+                        if (!actor) return;
+
+                        fillModal(actor);
+                        const modal = new bootstrap.Modal('#detailModal');
+                        modal.show();
+                    });
+
+                    // ───── قلب داخل کارت ─────
+                    $(document).on('click', '.favorite-btn', function (e) {
+                        e.stopImmediatePropagation();
+                        const id = $(this).data('id');
+                        toggleFavorite(id);
+                    });
+
+                    // ───── قلب داخل مودال ─────
+                    $('#modalFavoriteBtn').on('click', function () {
+                        const id = $(this).data('id');
+                        toggleFavorite(id);
+                    });
+
+                    // وقتی مودال کامل باز شد (برای اطمینان بیشتر)
+                    $('#detailModal').on('shown.bs.modal', function () {
+                        // در صورت نیاز می‌توانی اینجا دوباره چک کنی
+                    });
+                })
+                .fail(() => {
+                    $('#gallery').html('<div class="col-12 alert alert-danger text-center p-5">خطا در بارگذاری داده‌ها</div>');
+                });
+            // ────────────────────────────────────────────────
+            // فیلتر جنسیت و وضعیت (مودال فیلتر)
+            // ────────────────────────────────────────────────
+
+            // متغیرهای فیلتر
+            let currentGenderFilter = 'all';
+            let currentStatusFilter = 'all';
+
+            // کلیک روی دکمه‌های جنسیت
+            $(document).on('click', '.gender-btn', function () {
+                $('.gender-btn').removeClass('baz-btn-active');
+                $(this).addClass('baz-btn-active');
+                currentGenderFilter = $(this).data('gender');
+                applyFilters();
             });
 
-            // رویدادهای کلیک کارت و قلب
-            $(document).on('click', '.actor-card', function (e) {
-                if ($(e.target).closest('.favorite-btn').length) return;
-                const id = $(this).data('id');
-                const actor = allActors.find(a => a.id === id);
-                if (actor) {
-                    fillModal(actor);
-                    new bootstrap.Modal('#detailModal').show();
+            // کلیک روی دکمه‌های وضعیت
+            $(document).on('click', '.status-btn', function () {
+                $('.status-btn').removeClass('baz-btn-active');
+                $(this).addClass('baz-btn-active');
+                currentStatusFilter = $(this).data('status');
+                applyFilters();
+            });
+
+            // اصلاح تابع applyFilters برای پشتیبانی از جنسیت و وضعیت
+            function applyFilters() {
+                const q = $('#searchInput').val().trim().toLowerCase();
+
+                filteredActors = allActors.filter(actor => {
+                    const nameMatch = !q || actor.fullName.toLowerCase().includes(q);
+
+                    const genderMatch = currentGenderFilter === 'all' ||
+                        actor.gender === currentGenderFilter;
+
+                    const statusMatch = currentStatusFilter === 'all' ||
+                        actor.status === currentStatusFilter;
+
+                    return nameMatch && genderMatch && statusMatch;
+                });
+
+                renderGallery(filteredActors);
+            }
+        
+        // ────────────────────────────────────────────────
+        // ویژوالایزر / لایت‌باکس آلبوم داخل مودال جزئیات
+        // ────────────────────────────────────────────────
+
+        let currentAlbumImages = [];   // آرایه لینک تصاویر آلبوم فعلی
+        let currentImageIndex = 0;
+
+        // باز کردن ویوئر با ایندکس مشخص
+        function openAlbumViewer(index = 0) {
+            if (!currentAlbumImages.length) return;
+
+            currentImageIndex = Math.max(0, Math.min(index, currentAlbumImages.length - 1));
+
+            $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
+            $('#viewerCurrentIndex').text(currentImageIndex + 1);
+            $('#viewerTotal').text(currentAlbumImages.length);
+
+            const viewerModal = new bootstrap.Modal('#albumViewerModal');
+            viewerModal.show();
+
+            // اول مودال جزئیات رو ببند (اختیاری - اگر می‌خوای همزمان باز بمونه حذفش کن)
+            bootstrap.Modal.getInstance(document.getElementById('detailModal'))?.hide();
+        }
+
+        // رفتن به تصویر بعدی / قبلی
+        function changeViewerImage(delta) {
+            currentImageIndex = (currentImageIndex + delta + currentAlbumImages.length) % currentAlbumImages.length;
+            $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
+            $('#viewerCurrentIndex').text(currentImageIndex + 1);
+        }
+
+        // کلیک روی عکس‌های آلبوم
+        $(document).on('click', '#modalAlbum img', function () {
+            const clickedSrc = $(this).attr('src');
+            currentAlbumImages = $('#modalAlbum img').map((i, el) => $(el).attr('src')).get();
+            const index = currentAlbumImages.indexOf(clickedSrc);
+            openAlbumViewer(index >= 0 ? index : 0);
+        });
+
+        // دکمه‌های ناوبری
+        $('#viewerPrev').on('click', () => changeViewerImage(-1));
+        $('#viewerNext').on('click', () => changeViewerImage(1));
+
+        // پشتیبانی کیبورد (فقط وقتی ویوئر بازه)
+        $('#albumViewerModal').on('shown.bs.modal', function () {
+            $(document).on('keydown.albumViewer', function (e) {
+                if (e.key === 'ArrowLeft') changeViewerImage(-1);
+                if (e.key === 'ArrowRight') changeViewerImage(1);
+                if (e.key === 'Escape') {
+                    bootstrap.Modal.getInstance('#albumViewerModal')?.hide();
                 }
             });
+        }).on('hidden.bs.modal', function () {
+            $(document).off('keydown.albumViewer');
+            currentAlbumImages = []; // ریست
+        });
+        // ────────────────────────────────────────────────
+        // دکمه دوکاره بالا / پایین + progress ring
+        // ────────────────────────────────────────────────
 
-            $(document).on('click', '.favorite-btn', function (e) {
-                e.stopPropagation();
-                toggleFavorite($(this).data('id'));
-            });
+        $(window).on('scroll', function () {
+            const scrollTop = $(this).scrollTop();
+            const docHeight = $(document).height() - $(window).height();
+            const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
 
-            $('#modalFavoriteBtn').on('click', function () {
-                toggleFavorite($(this).data('id'));
-            });
-        })
-        .fail(() => {
-            $('#gallery').html('<div class="alert alert-danger text-center p-5">خطا در بارگذاری داده‌ها</div>');
+            // نمایش / مخفی کردن دکمه
+            if (scrollTop > 300) {
+                $('#scrollDualBtn').addClass('show');
+            } else {
+                $('#scrollDualBtn').removeClass('show');
+            }
+
+            // پر کردن دایره پیشرفت
+            const offset = 188.4 - (188.4 * scrollPercent / 100);
+            $('.progress-ring__progress').css('stroke-dashoffset', offset);
+
+            // وقتی به انتهای صفحه رسیدیم → فلش پایین کم‌رنگ شود
+            if (scrollTop + $(window).height() >= $(document).height() - 50) {
+                $('body').addClass('scrolled-to-bottom');
+            } else {
+                $('body').removeClass('scrolled-to-bottom');
+            }
         });
 
-    // ────────────────────────────────────────────────
-    // فیلتر جنسیت و وضعیت
-    // ────────────────────────────────────────────────
-    $(document).on('click', '.gender-btn', function () {
-        $('.gender-btn').removeClass('baz-btn-active');
-        $(this).addClass('baz-btn-active');
-        currentGenderFilter = $(this).data('gender');
-        applyFilters();
+        // کلیک روی نیمه بالا → به بالا
+        $('#scrollDualBtn .top-half').on('click', function (e) {
+            e.stopPropagation();
+            $('html, body').animate({ scrollTop: 0 }, 600, 'swing');
+        });
+
+        // کلیک روی نیمه پایین → به پایین
+        $('#scrollDualBtn .bottom-half').on('click', function (e) {
+            e.stopPropagation();
+            $('html, body').animate({ scrollTop: $(document).height() }, 800, 'swing');
+        });
+
+        // کلیک روی کل دکمه (اگر جایی بین دو نیمه زد) → به بالا
+        $('#scrollDualBtn').on('click', function (e) {
+            if (!$(e.target).closest('.half').length) {
+                $('html, body').animate({ scrollTop: 0 }, 600, 'swing');
+            }
+        });
     });
-
-    $(document).on('click', '.status-btn', function () {
-        $('.status-btn').removeClass('baz-btn-active');
-        $(this).addClass('baz-btn-active');
-        currentStatusFilter = $(this).data('status');
-        applyFilters();
-    });
-
-    // ────────────────────────────────────────────────
-    // مدیریت علاقه‌مندی‌ها
-    // ────────────────────────────────────────────────
-    $('#showFavoritesBtn').on('click', function () {
-        $('#gallery').addClass('d-none');
-        $('#favoritesSection').removeClass('d-none');
-        const favActors = allActors.filter(a => isFavorite(a.id));
-        $('#favoritesGallery').html(
-            favActors.length ? favActors.map(createCard).join('') : 
-            '<div class="col-12 text-center py-9"><h4 class="text-white">هنوز علاقه‌مندی اضافه نشده</h4></div>'
-        );
-    });
-
-    $('#backToGallery').on('click', function () {
-        $('#favoritesSection').addClass('d-none');
-        $('#gallery').removeClass('d-none');
-        applyFilters();
-    });
-
-}); // پایان $(document).ready
-
-
-// ────────────────────────────────────────────────
-// ویژوالایزر آلبوم + دکمه اسکرول
-// ────────────────────────────────────────────────
-// این بخش را می‌توانی داخل ready بگذاری یا بعد از آن – ولی بهتر است بعد از لود DOM باشد
-let currentAlbumImages = [];
-let currentImageIndex = 0;
-
-function openAlbumViewer(index = 0) {
-    if (!currentAlbumImages.length) return;
-    currentImageIndex = Math.max(0, Math.min(index, currentAlbumImages.length - 1));
-    $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
-    $('#viewerCurrentIndex').text(currentImageIndex + 1);
-    $('#viewerTotal').text(currentAlbumImages.length);
-    new bootstrap.Modal('#albumViewerModal').show();
-    bootstrap.Modal.getInstance('#detailModal')?.hide();
-}
-
-function changeViewerImage(delta) {
-    currentImageIndex = (currentImageIndex + delta + currentAlbumImages.length) % currentAlbumImages.length;
-    $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
-    $('#viewerCurrentIndex').text(currentImageIndex + 1);
-}
-
-$(document).on('click', '#modalAlbum img', function () {
-    currentAlbumImages = $('#modalAlbum img').map((_, el) => $(el).attr('src')).get();
-    const idx = currentAlbumImages.indexOf($(this).attr('src'));
-    openAlbumViewer(idx >= 0 ? idx : 0);
-});
-
-$('#viewerPrev').on('click', () => changeViewerImage(-1));
-$('#viewerNext').on('click', () => changeViewerImage(1));
-
-// اسکرول دکمه دوکاره
-$(window).on('scroll', function () {
-    const scrollTop = $(this).scrollTop();
-    const docHeight = $(document).height() - $(window).height();
-    const percent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-
-    if (scrollTop > 300) {
-        $('#scrollDualBtn').addClass('show');
-    } else {
-        $('#scrollDualBtn').removeClass('show');
-    }
-
-    const offset = 188.4 - (188.4 * percent / 100);
-    $('.progress-ring__progress').css('stroke-dashoffset', offset);
-});
-
-// کلیک‌های دکمه اسکرول
-$('#scrollDualBtn .top-half').on('click', e => {
-    e.stopPropagation();
-    $('html, body').animate({ scrollTop: 0 }, 600);
-});
-
-$('#scrollDualBtn .bottom-half').on('click', e => {
-    e.stopPropagation();
-    $('html, body').animate({ scrollTop: $(document).height() }, 800);
-});
-
-$('#scrollDualBtn').on('click', e => {
-    if (!$(e.target).closest('.half').length) {
-        $('html, body').animate({ scrollTop: 0 }, 600);
-    }
-});
-</script>
     </script>
 </body>
 
