@@ -2,22 +2,77 @@
 <html lang="fa" dir="rtl" data-bs-theme="dark">
 
 <head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>گالری بازیگران ایرانی</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-    <meta name="description"
-        content="گالری کامل بازیگران ایرانی با امکان جستجو، فیلتر و مشاهده بیوگرافی و آلبوم تصاویر">
+    <title>گالری بازیگران ایرانی | مجموعه کامل بازیگران سینما و تلویزیون</title>
+    <meta name="description" content="گالری جامع و تعاملی بازیگران ایرانی با امکان جستجوی زنده، فیلتر جنسیت و سن، مشاهده آلبوم تصاویر و بیوگرافی. همه اطلاعات به‌روز و زیبا در تم تاریک.">
 
-    <!-- Tabler + استایل‌های پروژه -->
+    <!-- SEO پایه + فارسی -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="language" content="fa">
+    <meta name="rating" content="general">
+    <meta name="revisit-after" content="7 days">
+
+    <meta property="og:title" content="گالری بازیگران ایرانی | مجموعه کامل و تعاملی">
+    <meta property="og:description" content="جستجو، فیلتر و مشاهده بیوگرافی و آلبوم تصاویر صدها بازیگر ایرانی سینما و تلویزیون — تم تاریک، کاملاً فارسی و واکنش‌گرا">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://webramin.github.io/">
+    <meta property="og:site_name" content="گالری بازیگران">
+    <meta property="og:locale" content="fa_IR">
+    <!--  تصویر 1200×630  -->
+    <meta property="og:image" content="https://webramin.github.io/assets/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="گالری بازیگران ایرانی">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="گالری بازیگران ایرانی">
+    <meta name="twitter:description" content="مجموعه کامل بازیگران ایرانی با جستجو و فیلترهای پیشرفته">
+    <meta name="twitter:image" content="https://webramin.github.io/assets/og-image.jpg">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://webramin.github.io/">
+
+    <!-- Favicon ها (حداقل این سه تا را داشته باش) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Theme color برای مرورگر موبایل -->
+    <meta name="theme-color" content="#0a0c10">
+    <meta name="msapplication-TileColor" content="#0a0c10">
+
+    <!-- فونت Vazirmatn – نسخه جدید از jsDelivr -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003.0/Vazirmatn[wght].woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003.0/font-face.css" media="print" onload="this.media='all'">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
     <link rel="stylesheet" href="tabler.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="baz.css">
 
-    <!-- jQuery + Bootstrap JS -->
-    <script src="../jquery-3.7.1.min.js"></script>
-    <script src="../bootstrap-5.3.8-examples/assets/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "گالری بازیگران ایرانی",
+      "url": "https://your-domain.com/",
+      "description": "گالری تعاملی و کامل بازیگران ایرانی سینما و تلویزیون",
+      "inLanguage": "fa-IR",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://your-domain.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <style>
         :root {
             --gold: #e8ba30;
