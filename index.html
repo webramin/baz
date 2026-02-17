@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گالری بازیگران ایرانی</title>
+
+    <meta name="description"
+        content="گالری کامل بازیگران ایرانی با امکان جستجو، فیلتر و مشاهده بیوگرافی و آلبوم تصاویر">
+
+    <!-- Tabler + استایل‌های پروژه -->
+    <link rel="stylesheet" href="tabler.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="baz.css">
+
+    <!-- jQuery + Bootstrap JS -->
+    <script src="../jquery-3.7.1.min.js"></script>
+    <script src="../bootstrap-5.3.8-examples/assets/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --gold: #e8ba30;
+            --gold-dark: #c99a1e;
+            --cinema-dark: #0a0c10;
+            --cinema-surface: #111316;
+            --cinema-elevated: #1a1d24;
+            --border: #2f3744;
+            --muted: #9ca3af;
+        }
+
+        .actor-grid {
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        }
+
+        .card-actor {
+            border-radius: 14px;
+            overflow: hidden;
+            background: #141417;
+            border: 1px solid #2a2a2f;
+            transition: all 0.32s ease;
+            cursor: pointer;
+        }
+
+        .card-actor:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.65);
+            border-color: #e8ba30;
+        }
+
+        .card-image {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.55s ease;
+        }
+
+        .card-actor:hover .card-image img {
+            transform: scale(1.07);
+        }
+
+        .card-actions {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-actor:hover .card-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(20, 20, 23, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+        }
+
+        .action-btn:hover {
+            color: #e8ba30;
+            border-color: #e8ba30;
+            transform: scale(1.14);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            border-radius: 50px;
+            backdrop-filter: blur(8px);
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-deceased {
+            background: rgba(100, 116, 139, 0.15);
+            color: #cbd5e1;
+            border: 1px solid rgba(100, 116, 139, 0.4);
+        }
+
+        /* مودال */
+        .modal-content {
+            background: var(--cinema-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            border-bottom: none;
+            padding: 1.5rem 2rem 0.75rem;
+        }
+
+        .heart-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(26, 29, 36, 0.4);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: var(--muted);
+        }
+
+        .heart-btn.active {
+            color: #e8ba30;
+        }
+
+        .heart-btn.active svg {
+            fill: #e8ba30;
+        }
+
+        .info-card {
+            background: var(--cinema-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e8ba30;
+        }
+
+        .album-grid img {
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 10px;
+            cursor: zoom-in;
+            transition: all 0.28s;
+        }
+
+        .album-grid img:hover {
+            transform: scale(1.04);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        @media (max-width: 991px) {
+            .modal-body .row>div:first-child {
+                margin-bottom: 2rem;
+            }
+        }
+
+        #albumViewerModal .modal-backdrop {
+            background: rgba(0, 0, 0, 0.95) !important;
+        }
+
+        #viewerCurrentImage {
+            transition: opacity 0.3s ease;
+        }
+
+        #viewerPrev,
+        #viewerNext {
+            transition: all 0.2s;
+        }
+
+        #viewerPrev:hover,
+        #viewerNext:hover {
+            opacity: 1 !important;
+            transform: scale(1.1);
+        }
+
+        .amar {
+            margin-top: 8rem;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="backdrop-blur-xl bg-background/90 border-bottom position-fixed top-0 w-100 z-50">
+        <div class="container d-flex flex-wrap gap-3 align-items-center justify-content-center py-4">
+            <div class="d-flex align-items-center gap-3 fs-2 fw-bold">
+                <svg class="lucide lucide-film" width="32" height="32" stroke="#e8ba30">
+                    <use href="#film" />
+                </svg>
+                <span class="text-gold">گالری</span><span>بازیگران</span>
+            </div>
+
+            <div class="position-relative" style="max-width:480px; flex:1;">
+                <input type="search" id="searchInput" class="form-control form-control-lg ps-5 pe-4"
+                    placeholder="جستجوی نام بازیگر …">
+                <svg class="lucide lucide-search position-absolute top-50 end-0 translate-middle-y pe-3 text-muted"
+                    width="20" height="20">
+                    <use href="#search" />
+                </svg>
+            </div>
+            <!-- داخل هدر، کنار فیلد جستجو یا در div آمار -->
+            <div class="d-flex align-items-center gap-3">
+                <button id="showFavoritesBtn" class="btn btn-outline-gold d-flex align-items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                    </svg>
+                    علاقه‌مندی‌ها (<span id="favoriteCount">0</span>)
+                </button>
+
+                <!-- دکمه فیلتر (اگر قبلاً اضافه کردی) -->
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                    </svg>
+                    فیلتر
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container amar mx-3">
+        <div class="d-flex flex-wrap justify-content-center gap-4 text-muted small fw-medium">
+            <div>کل بازیگران: <span id="totalCount" class="fw-bold text-white">—</span></div>
+            <div>نمایش: <span id="showingCount" class="fw-bold text-white">—</span></div>
+            <div>علاقه‌مندی‌ها: <span id="favoriteCount" class="fw-bold text-gold">0</span></div>
+        </div>
+    </div>
+
+   <!-- دکمه دوکاره بازگشت به بالا / پایین با دو نیم‌دایره -->
+<button id="scrollDualBtn" class="scroll-dual-btn" title="بالا / پایین صفحه" aria-label="اسکرول دوطرفه">
+  <svg class="progress-ring" width="64" height="64">
+    <!-- پس‌زمینه دایره -->
+    <circle class="progress-ring__bg" cx="32" cy="32" r="30"></circle>
+    
+    <!-- پیشرفت اسکرول (کل دایره) -->
+    <circle class="progress-ring__progress" cx="32" cy="32" r="30"></circle>
+  </svg>
+
+  <!-- خط جداکننده افقی وسط دایره -->
+  <hr class="split-line">
+
+  <!-- فلش بالا (نیمه بالا) -->
+  <div class="half top-half" title="به بالای صفحه">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </div>
+
+  <!-- فلش پایین (نیمه پایین) -->
+  <div class="half bottom-half" title="به پایین صفحه">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 5v14M19 12l-7 7-7-7"/>
+    </svg>
+  </div>
+</button>
+
+    <main class="container-lg pb-5">
+        <div class="actor-grid row g-4" id="gallery"></div>
+        <!-- بخش علاقه‌مندی‌ها (ابتدا مخفی) -->
+        <div id="favoritesSection" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="h4 text-gold d-flex align-items-center gap-2">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                        <path
+                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                    </svg>
+                    علاقه‌مندی‌های شما
+                </h2>
+                <button id="backToGallery" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    بازگشت به گالری
+                </button>
+            </div>
+
+            <div class="actor-grid row g-4" id="favoritesGallery"></div>
+
+            <!-- حالت خالی -->
+            <div id="noFavorites" class="text-center py-9 d-none">
+                <div class="display-1 text-muted mb-3">♡</div>
+                <h5 class="text-white">هنوز هیچ بازیگری به علاقه‌مندی‌ها اضافه نشده</h5>
+                <p class="text-muted">بازیگران مورد علاقه‌ات رو با قلب علامت بزن</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h2 class="modal-title fs-3 fw-bold text-gold" id="detailModalLabel"></h2>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body p-4 p-md-5">
+                    <div class="row g-5">
+
+                        <!-- ستون چپ - عکس بزرگ + قلب -->
+                        <div class="col-md-5">
+                            <div class="position-relative rounded-4 overflow-hidden shadow-lg">
+                                <img id="modalProfileImg" class="w-100 rounded-4"
+                                    style="aspect-ratio:3/4; object-fit:cover;" alt="">
+                                <button id="modalFavoriteBtn"
+                                    class="heart-btn position-absolute m-3 top-0 start-0 d-flex align-items-center justify-content-center fs-4">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path
+                                            d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ستون راست - اطلاعات -->
+                        <div class="col-md-7 d-flex flex-column gap-4">
+
+                            <div class="row g-3 text-center">
+                                <div class="col-6 col-sm-3">
+                                    <div class="info-card">
+                                        <div class="small text-muted mb-1">متولد</div>
+                                        <div class="fs-4 fw-bold" id="modalBirthYear"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="info-card">
+                                        <div class="small text-muted mb-1">سن</div>
+                                        <div class="fs-4 fw-bold text-gold" id="modalAge"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="info-card">
+                                        <div class="small text-muted mb-1">جنسیت</div>
+                                        <div class="fs-5 fw-bold" id="modalGender"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-3">
+                                    <div class="info-card">
+                                        <div class="small text-muted mb-1">وضعیت</div>
+                                        <div class="fs-5 fw-bold" id="modalStatus"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- تاریخ فوت (فقط اگر فقید باشد) -->
+                            <div id="deathRow" class="row g-3 text-center d-none">
+                                <div class="col-12">
+                                    <div class="info-card border-danger-subtle">
+                                        <div class="small text-danger-emphasis mb-1">تاریخ درگذشت</div>
+                                        <div class="fs-4 fw-bold text-danger" id="modalDeathYear"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- بیوگرافی -->
+                            <div>
+                                <h5 class="text-gold fw-semibold mb-3 d-flex align-items-center gap-2">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                                        <path d="M8 11h8" />
+                                        <path d="M8 7h6" />
+                                    </svg>
+                                    بیوگرافی کوتاه
+                                </h5>
+                                <p class="text-muted lh-lg mb-0" id="modalBio"
+                                    style="max-height:240px; overflow-y:auto;"></p>
+                            </div>
+
+                            <!-- ویکی‌پدیا -->
+                            <a id="wikiLink" href="#" target="_blank"
+                                class="btn btn-outline-gold w-100 py-3 d-flex align-items-center justify-content-center gap-2 mt-2">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                    <polyline points="15 3 21 3 21 9" />
+                                    <line x1="10" y1="14" x2="21" y2="3" />
+                                </svg>
+                                صفحه ویکی‌پدیا
+                            </a>
+
+                            <!-- آلبوم تصاویر -->
+                            <div class="mt-4">
+                                <h5 class="text-gold fw-semibold mb-3 d-flex align-items-center gap-2">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                        <path
+                                            d="M8.813 11.612c.457-.38.918-.38 1.386.011l.108.098 4.986 4.986.094.083a1 1 0 0 0 1.403-1.403l-.083-.094-1.292-1.293.292-.293.106-.095c.457-.38.918-.38 1.386.011l.108.098 4.674 4.675a4 4 0 0 1-3.775 3.599l-.206.005h-12a4 4 0 0 1-3.98-3.603l6.687-6.69.106-.095zm9.187-9.612a4 4 0 0 1 3.995 3.8l.005.2v9.585l-3.293-3.292-.15-.137c-1.256-1.095-2.85-1.097-4.096-.017l-.154.14-.307.306-2.293-2.292-.15-.137c-1.256-1.095-2.85-1.097-4.096-.017l-.154.14-5.307 5.306v-9.585a4 4 0 0 1 3.8-3.995l.2-.005h12z" />
+                                    </svg>
+                                    آلبوم تصاویر
+                                </h5>
+                                <div class="row g-3 album-grid" id="modalAlbum"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- مودال فیلتر جنسیت و وضعیت -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content bg-surface shadow-lg" style="--tblr-modal-bg: #15181E;">
+
+                <div class="modal-header border-0 pb-1">
+                    <h5 class="modal-title w-100 text-center fs-4 fw-bold text-gold" id="filterModalLabel">
+                        فیلتر بازیگران
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="بستن"></button>
+                </div>
+
+                <div class="modal-body pt-2">
+                    <div class="d-flex flex-column flex-sm-row gap-4 justify-content-center align-items-center">
+
+                        <!-- فیلتر جنسیت -->
+                        <div
+                            class="baz-flex baz-items-center baz-gap-1 baz-rounded-lg baz-bg-cinema-surface baz-p-1 baz-border baz-border-border shadow-sm">
+                            <button class="baz-btn baz-btn-active gender-btn" data-gender="all">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <polyline points="16 11 18 13 22 9"></polyline>
+                                </svg>
+                                همه
+                            </button>
+                            <button class="baz-btn gender-btn" data-gender="مرد">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                مردان
+                            </button>
+                            <button class="baz-btn gender-btn" data-gender="زن">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="8" r="5"></circle>
+                                    <path d="M20 21a8 8 0 0 0-16 0"></path>
+                                </svg>
+                                زنان
+                            </button>
+                        </div>
+
+                        <!-- فیلتر وضعیت -->
+                        <div
+                            class="baz-flex baz-items-center baz-gap-1 baz-rounded-lg baz-bg-cinema-surface baz-p-1 baz-border baz-border-border shadow-sm">
+                            <button class="baz-btn baz-btn-active status-btn" data-status="all">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <polyline points="16 11 18 13 22 9"></polyline>
+                                </svg>
+                                همه
+                            </button>
+                            <button class="baz-btn status-btn" data-status="فعال">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                فعال
+                            </button>
+                            <button class="baz-btn status-btn" data-status="فقید">
+                                <svg class="baz-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="m12.5 17-.5-1-.5 1h1z"></path>
+                                    <path
+                                        d="M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z">
+                                    </path>
+                                    <circle cx="15" cy="12" r="1"></circle>
+                                    <circle cx="9" cy="12" r="1"></circle>
+                                </svg>
+                                فقید
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="modal-footer border-0 justify-content-center py-3">
+                    <small class="text-muted">فیلترها به صورت لحظه‌ای اعمال می‌شوند</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- مودال تمام‌صفحه ویوئر آلبوم -->
+    <div class="modal fade" id="albumViewerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-dark border-0">
+
+                <div class="modal-body p-0 position-relative d-flex align-items-center justify-content-center"
+                    style="height: 100vh;background: #101319;">
+
+                    <!-- دکمه بستن -->
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4 fs-4"
+                        data-bs-dismiss="modal" aria-label="بستن"></button>
+
+                    <!-- عکس اصلی -->
+                    <img id="viewerCurrentImage" class="img-fluid"
+                        style="max-height: 90vh; max-width: 90vw; object-fit: contain;" alt="تصویر آلبوم">
+
+                    <!-- دکمه‌های ناوبری -->
+                    <button id="viewerPrev"
+                        class="btn btn-dark btn-lg position-absolute start-0 top-50 translate-middle-y rounded-circle opacity-75 px-3 py-4 ms-4">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                    </button>
+
+                    <button id="viewerNext"
+                        class="btn btn-dark btn-lg position-absolute end-0 top-50 translate-middle-y rounded-circle opacity-75 px-3 py-4 me-4">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="m9 18 6-6-6-6" />
+                        </svg>
+                    </button>
+
+                    <!-- شماره تصویر -->
+                    <div
+                        class="position-absolute bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-dark bg-opacity-75 rounded-pill text-white small">
+                        تصویر <span id="viewerCurrentIndex">1</span> از <span id="viewerTotal">1</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // app.js — گالری تعاملی بازیگران ایرانی
+        // نسخه: ۱۴۰۴ — کاملاً رفع باگ شده، مودال پایدار، بیو + آلبوم + قلب
+        // ============================================================
+
+        $(document).ready(function () {
+
+            // ────────────────────────────────────────────────
+            // 1. متغیرهای سراسری
+            // ────────────────────────────────────────────────
+            let allActors = [];
+            let filteredActors = [];
+            let favorites = JSON.parse(localStorage.getItem('user_favorites')) || [];
+
+            const DATA_URL = "BAZPRO.json";
+            const IMG_BASE = "https://raw.githubusercontent.com/webramin/baz/min/img/";
+            const GITHUB_API = "https://api.github.com/repos/webramin/baz/contents/img";
+
+            let currentModalActorId = null;   // برای همگام‌سازی قلب مودال
+
+            // ────────────────────────────────────────────────
+            // 2. توابع کمکی
+            // ────────────────────────────────────────────────
+            function normalizeId(name) {
+                return (name || '').replace(/[\s\u200C]+/g, '-').replace(/[^a-z0-9\-آ-ی]/gi, '').toLowerCase();
+            }
+
+            function calculateAge(birthYear, deathYear = null) {
+                const currentShamsi = new Date().getFullYear() - 621;
+                const refYear = deathYear || currentShamsi;
+                return birthYear ? (refYear - parseInt(birthYear)) : '؟';
+            }
+
+            function isFavorite(id) {
+                return favorites.includes(id);
+            }
+
+            function toggleFavorite(id) {
+                if (favorites.includes(id)) {
+                    favorites = favorites.filter(f => f !== id);
+                } else {
+                    favorites.push(id);
+                }
+                localStorage.setItem('user_favorites', JSON.stringify(favorites));
+                updateCounters();
+                renderGallery(filteredActors);
+
+                // همگام‌سازی قلب داخل مودال اگر باز باشد
+                if ($('#detailModal').hasClass('show') && currentModalActorId === id) {
+                    $('#modalFavoriteBtn').toggleClass('active', isFavorite(id));
+                }
+            }
+
+            function updateCounters() {
+                $('#totalCount').text(allActors.length);
+                $('#showingCount').text(filteredActors.length);
+                $('#favoriteCount').text(favorites.length);
+            }
+
+            // ────────────────────────────────────────────────
+            // مدیریت صفحه علاقه‌مندی‌ها
+            // ────────────────────────────────────────────────
+
+            function renderFavorites() {
+                const favActors = allActors.filter(actor => isFavorite(actor.id));
+
+                if (favActors.length === 0) {
+                    $('#favoritesGallery').addClass('d-none');
+                    $('#noFavorites').removeClass('d-none');
+                } else {
+                    $('#noFavorites').addClass('d-none');
+                    $('#favoritesGallery').removeClass('d-none').html(
+                        favActors.map(createCard).join('')
+                    );
+                }
+            }
+
+            $('#showFavoritesBtn').on('click', function () {
+                $('#gallery').addClass('d-none');
+                $('#favoritesSection').removeClass('d-none');
+                renderFavorites();
+                // برای هماهنگی با شمارنده‌ها
+                updateCounters();
+            });
+
+            $('#backToGallery').on('click', function () {
+                $('#favoritesSection').addClass('d-none');
+                $('#gallery').removeClass('d-none');
+                // گالری اصلی رو با فیلترهای فعلی دوباره رندر می‌کنیم
+                applyFilters();
+            });
+
+
+            // ────────────────────────────────────────────────
+            // 3. ساخت کارت (دقیقاً مطابق نمونه‌ای که فرستادی)
+            // ────────────────────────────────────────────────
+            function createCard(actor) {
+                const id = actor.id;
+                const age = calculateAge(actor.birthYear, actor.deathYear);
+                const imgSrc = actor.profileImage ? IMG_BASE + actor.profileImage : '';
+                const hasImage = !!imgSrc;
+
+                const statusClass = actor.status === 'فقید' ? 'status-deceased' : 'status-active';
+                const genderClass = actor.gender === 'مرد' ? 'tag-male' : 'tag-female';
+                const heartStyle = isFavorite(id) ? 'fill: #e8ba30; color: #e8ba30;' : '';
+
+                let html = `
+        <div class="actor-card" data-id="${id}">
+            <div class="card-image">
+        `;
+
+                if (hasImage) {
+                    html += `<img src="${imgSrc}" alt="${actor.fullName}" loading="lazy">`;
+                } else {
+                    html += `
+                <div class="d-grid" style="height:55%;align-content:space-evenly;justify-items:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="lucide lucide-user mb-4 opacity-70">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span class="text-sm font-medium">تصویر موجود نیست</span>
+                </div>
+            `;
+                }
+
+                html += `
+                <div class="card-actions">
+                    <button class="action-btn favorite-btn" data-id="${id}" title="علاقه‌مندی">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm" style="${heartStyle}">
+                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                        </svg>
+                    </button>
+                    <button class="action-btn info-btn" data-id="${id}" title="جزئیات">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon icon-sm">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 16v-4"></path>
+                            <path d="M12 8h.01"></path>
+                        </svg>
+                    </button>
+                </div>
+                <span class="status-badge ${statusClass}">${actor.status}</span>
+            </div>
+            <div class="card-content">
+                <div class="card-name">${actor.fullName}</div>
+                <div class="card-info">
+                    <span class="age">${age} سال</span>
+                    <span>متولد ${actor.birthYear || 'نامشخص'}</span>
+                </div>
+                <div class="tags">
+                    <span class="tag tag-${actor.status === 'فقید' ? 'deceased' : 'active'}">${actor.status}</span>
+                    <span class="tag ${genderClass}">${actor.gender}</span>
+                </div>
+            </div>
+        </div>`;
+
+                return html;
+            }
+
+            // ────────────────────────────────────────────────
+            // 4. رندر گالری
+            // ────────────────────────────────────────────────
+            function renderGallery(actors) {
+                const html = actors.length
+                    ? actors.map(createCard).join('')
+                    : `<div class="col-12 text-center py-9">
+                 <div class="display-1 text-gold opacity-50 mb-4">🎬</div>
+                 <h4 class="text-white">هیچ بازیگری یافت نشد</h4>
+               </div>`;
+
+                $('#gallery').html(html);
+                updateCounters();
+            }
+
+            // ────────────────────────────────────────────────
+            // 5. جستجو و فیلتر
+            // ────────────────────────────────────────────────
+            function applyFilters() {
+                const q = $('#searchInput').val().trim().toLowerCase();
+                filteredActors = allActors.filter(a => !q || a.fullName.toLowerCase().includes(q));
+                renderGallery(filteredActors);
+            }
+
+            // ────────────────────────────────────────────────
+            // 6. توابع لود بیوگرافی و آلبوم (همان قبلی + بهینه)
+            // ────────────────────────────────────────────────
+            function loadBioFromWikipedia(id, fullName, $target) {
+                const cacheKey = `description_${id}`;
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) { $target.text(cached); return; }
+
+                $target.html('<div class="modal-loading"><div class="spinner-border spinner-border-sm me-2"></div>در حال بارگذاری بیوگرافی...</div>');
+
+                $.getJSON(`https://fa.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&redirects=1&titles=${encodeURIComponent(fullName)}&origin=*`)
+                    .done(data => {
+                        const extract = Object.values(data.query.pages)[0]?.extract || '';
+                        const bio = extract.length > 800 ? extract.substring(0, 780) + ' …' : extract;
+                        $target.text(bio || 'بیوگرافی یافت نشد');
+                        if (bio) localStorage.setItem(cacheKey, bio);
+                    })
+                    .fail(() => $target.text('خطا در دریافت بیوگرافی از ویکی‌پدیا'));
+            }
+
+            function loadAlbumFromGithub(id, fullName, $container) {
+                const cacheKey = `album_${id}`;
+                const cached = localStorage.getItem(cacheKey);
+                if (cached) {
+                    renderAlbumImages(JSON.parse(cached), $container);
+                    return;
+                }
+
+                $container.html('<div class="modal-loading col-12"><div class="spinner-border spinner-border-sm me-2"></div>در حال بارگذاری آلبوم...</div>');
+
+                $.getJSON(GITHUB_API)
+                    .done(files => {
+                        const regex = new RegExp(fullName.replace(/[\s\u200C]+/g, '[ _-]*'), 'i');
+                        const urls = files
+                            .filter(f => f.type === 'file' && /\.(jpe?g|png|webp)$/i.test(f.name))
+                            .filter(f => regex.test(f.name))
+                            .map(f => f.download_url);
+
+                        renderAlbumImages(urls, $container);
+                        if (urls.length) localStorage.setItem(cacheKey, JSON.stringify(urls));
+                    })
+                    .fail(() => $container.html('<p class="text-muted text-center col-12 py-4">آلبوم در دسترس نیست</p>'));
+            }
+
+            function renderAlbumImages(urls, $container) {
+                $container.empty();
+                if (!urls.length) {
+                    $container.html('<p class="text-muted text-center col-12 py-4">تصویری موجود نیست</p>');
+                    return;
+                }
+                urls.forEach((url, i) => {
+                    $container.append(`
+                <div class="col-6 col-sm-4 col-md-3">
+                    <img src="${url}" class="album-img w-100 rounded shadow-sm" alt="تصویر ${i + 1}" loading="lazy"
+                         onerror="this.src='https://via.placeholder.com/300x400/1a1d24/666?text=خطا'">
+                </div>
+            `);
+                });
+            }
+
+            // ────────────────────────────────────────────────
+            // 7. پر کردن مودال
+            // ────────────────────────────────────────────────
+            function fillModal(actor) {
+                currentModalActorId = actor.id;
+
+                const age = calculateAge(actor.birthYear, actor.deathYear);
+                const imgSrc = actor.profileImage ? IMG_BASE + actor.profileImage : '';
+
+                $('#detailModalLabel').text(actor.fullName);
+                $('#modalProfileImg').attr('src', imgSrc || 'https://via.placeholder.com/400x533/1a1d24/9ca3af?text=بدون+تصویر');
+                $('#modalBirthYear').text(actor.birthYear || 'نامشخص');
+                $('#modalAge').text(age + ' سال');
+                $('#modalGender').text(actor.gender || 'نامشخص');
+                $('#modalStatus').text(actor.status);
+                $('#wikiLink').attr('href', `https://fa.wikipedia.org/wiki/${encodeURIComponent(actor.fullName)}`);
+
+                // تاریخ فوت
+                if (actor.status === 'فقید' && actor.deathYear) {
+                    $('#modalDeathYear').text(actor.deathYear);
+                    $('#deathRow').removeClass('d-none');
+                } else {
+                    $('#deathRow').addClass('d-none');
+                }
+
+                // قلب مودال
+                $('#modalFavoriteBtn').data('id', actor.id).toggleClass('active', isFavorite(actor.id));
+
+                // لود محتوای داینامیک
+                loadBioFromWikipedia(actor.id, actor.fullName, $('#modalBio'));
+                loadAlbumFromGithub(actor.id, actor.fullName, $('#modalAlbum'));
+            }
+
+            // ────────────────────────────────────────────────
+            // 8. شروع برنامه
+            // ────────────────────────────────────────────────
+            $.getJSON(DATA_URL)
+                .done(rawData => {
+                    allActors = rawData.map(item => ({
+                        id: normalizeId(item.name),
+                        fullName: item.name,
+                        birthYear: item.birthYear,
+                        deathYear: item.daydeath,
+                        gender: item.gender,
+                        status: item.status,
+                        profileImage: item.image
+                    }));
+
+                    filteredActors = [...allActors];
+                    renderGallery(filteredActors);
+                    updateCounters();
+
+                    // جستجوی زنده
+                    let timeout;
+                    $('#searchInput').on('input', () => {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(applyFilters, 280);
+                    });
+
+                    // ───── رویداد کلیک روی کارت ─────
+                    $(document).on('click', '.actor-card', function (e) {
+                        // اگر روی دکمه قلب کلیک شد → فقط toggle کن
+                        if ($(e.target).closest('.favorite-btn').length) return;
+
+                        const id = $(this).data('id');
+                        const actor = allActors.find(a => a.id === id);
+                        if (!actor) return;
+
+                        fillModal(actor);
+                        const modal = new bootstrap.Modal('#detailModal');
+                        modal.show();
+                    });
+
+                    // ───── قلب داخل کارت ─────
+                    $(document).on('click', '.favorite-btn', function (e) {
+                        e.stopImmediatePropagation();
+                        const id = $(this).data('id');
+                        toggleFavorite(id);
+                    });
+
+                    // ───── قلب داخل مودال ─────
+                    $('#modalFavoriteBtn').on('click', function () {
+                        const id = $(this).data('id');
+                        toggleFavorite(id);
+                    });
+
+                    // وقتی مودال کامل باز شد (برای اطمینان بیشتر)
+                    $('#detailModal').on('shown.bs.modal', function () {
+                        // در صورت نیاز می‌توانی اینجا دوباره چک کنی
+                    });
+                })
+                .fail(() => {
+                    $('#gallery').html('<div class="col-12 alert alert-danger text-center p-5">خطا در بارگذاری داده‌ها</div>');
+                });
+            // ────────────────────────────────────────────────
+            // فیلتر جنسیت و وضعیت (مودال فیلتر)
+            // ────────────────────────────────────────────────
+
+            // متغیرهای فیلتر
+            let currentGenderFilter = 'all';
+            let currentStatusFilter = 'all';
+
+            // کلیک روی دکمه‌های جنسیت
+            $(document).on('click', '.gender-btn', function () {
+                $('.gender-btn').removeClass('baz-btn-active');
+                $(this).addClass('baz-btn-active');
+                currentGenderFilter = $(this).data('gender');
+                applyFilters();
+            });
+
+            // کلیک روی دکمه‌های وضعیت
+            $(document).on('click', '.status-btn', function () {
+                $('.status-btn').removeClass('baz-btn-active');
+                $(this).addClass('baz-btn-active');
+                currentStatusFilter = $(this).data('status');
+                applyFilters();
+            });
+
+            // اصلاح تابع applyFilters برای پشتیبانی از جنسیت و وضعیت
+            function applyFilters() {
+                const q = $('#searchInput').val().trim().toLowerCase();
+
+                filteredActors = allActors.filter(actor => {
+                    const nameMatch = !q || actor.fullName.toLowerCase().includes(q);
+
+                    const genderMatch = currentGenderFilter === 'all' ||
+                        actor.gender === currentGenderFilter;
+
+                    const statusMatch = currentStatusFilter === 'all' ||
+                        actor.status === currentStatusFilter;
+
+                    return nameMatch && genderMatch && statusMatch;
+                });
+
+                renderGallery(filteredActors);
+            }
+        });
+        // ────────────────────────────────────────────────
+        // ویژوالایزر / لایت‌باکس آلبوم داخل مودال جزئیات
+        // ────────────────────────────────────────────────
+
+        let currentAlbumImages = [];   // آرایه لینک تصاویر آلبوم فعلی
+        let currentImageIndex = 0;
+
+        // باز کردن ویوئر با ایندکس مشخص
+        function openAlbumViewer(index = 0) {
+            if (!currentAlbumImages.length) return;
+
+            currentImageIndex = Math.max(0, Math.min(index, currentAlbumImages.length - 1));
+
+            $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
+            $('#viewerCurrentIndex').text(currentImageIndex + 1);
+            $('#viewerTotal').text(currentAlbumImages.length);
+
+            const viewerModal = new bootstrap.Modal('#albumViewerModal');
+            viewerModal.show();
+
+            // اول مودال جزئیات رو ببند (اختیاری - اگر می‌خوای همزمان باز بمونه حذفش کن)
+            bootstrap.Modal.getInstance(document.getElementById('detailModal'))?.hide();
+        }
+
+        // رفتن به تصویر بعدی / قبلی
+        function changeViewerImage(delta) {
+            currentImageIndex = (currentImageIndex + delta + currentAlbumImages.length) % currentAlbumImages.length;
+            $('#viewerCurrentImage').attr('src', currentAlbumImages[currentImageIndex]);
+            $('#viewerCurrentIndex').text(currentImageIndex + 1);
+        }
+
+        // کلیک روی عکس‌های آلبوم
+        $(document).on('click', '#modalAlbum img', function () {
+            const clickedSrc = $(this).attr('src');
+            currentAlbumImages = $('#modalAlbum img').map((i, el) => $(el).attr('src')).get();
+            const index = currentAlbumImages.indexOf(clickedSrc);
+            openAlbumViewer(index >= 0 ? index : 0);
+        });
+
+        // دکمه‌های ناوبری
+        $('#viewerPrev').on('click', () => changeViewerImage(-1));
+        $('#viewerNext').on('click', () => changeViewerImage(1));
+
+        // پشتیبانی کیبورد (فقط وقتی ویوئر بازه)
+        $('#albumViewerModal').on('shown.bs.modal', function () {
+            $(document).on('keydown.albumViewer', function (e) {
+                if (e.key === 'ArrowLeft') changeViewerImage(-1);
+                if (e.key === 'ArrowRight') changeViewerImage(1);
+                if (e.key === 'Escape') {
+                    bootstrap.Modal.getInstance('#albumViewerModal')?.hide();
+                }
+            });
+        }).on('hidden.bs.modal', function () {
+            $(document).off('keydown.albumViewer');
+            currentAlbumImages = []; // ریست
+        });
+    // ────────────────────────────────────────────────
+// دکمه دوکاره بالا / پایین + progress ring
+// ────────────────────────────────────────────────
+
+$(window).on('scroll', function () {
+  const scrollTop = $(this).scrollTop();
+  const docHeight = $(document).height() - $(window).height();
+  const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+
+  // نمایش / مخفی کردن دکمه
+  if (scrollTop > 300) {
+    $('#scrollDualBtn').addClass('show');
+  } else {
+    $('#scrollDualBtn').removeClass('show');
+  }
+
+  // پر کردن دایره پیشرفت
+  const offset = 188.4 - (188.4 * scrollPercent / 100);
+  $('.progress-ring__progress').css('stroke-dashoffset', offset);
+
+  // وقتی به انتهای صفحه رسیدیم → فلش پایین کم‌رنگ شود
+  if (scrollTop + $(window).height() >= $(document).height() - 50) {
+    $('body').addClass('scrolled-to-bottom');
+  } else {
+    $('body').removeClass('scrolled-to-bottom');
+  }
+});
+
+// کلیک روی نیمه بالا → به بالا
+$('#scrollDualBtn .top-half').on('click', function (e) {
+  e.stopPropagation();
+  $('html, body').animate({ scrollTop: 0 }, 600, 'swing');
+});
+
+// کلیک روی نیمه پایین → به پایین
+$('#scrollDualBtn .bottom-half').on('click', function (e) {
+  e.stopPropagation();
+  $('html, body').animate({ scrollTop: $(document).height() }, 800, 'swing');
+});
+
+// کلیک روی کل دکمه (اگر جایی بین دو نیمه زد) → به بالا
+$('#scrollDualBtn').on('click', function (e) {
+  if (!$(e.target).closest('.half').length) {
+    $('html, body').animate({ scrollTop: 0 }, 600, 'swing');
+  }
+});
+    </script>
+</body>
+
+</html>
